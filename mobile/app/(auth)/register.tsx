@@ -25,31 +25,23 @@ const RegisterScreen = () => {
       return;
     }
 
-    // otp generation
-    const code = await Crypto.getRandomBytesAsync(4);
-    const num =
-      ((code[0] << 24) | (code[1] << 16) | (code[2] << 8) | code[3]) %
-      1_000_000;
-    const otp = num.toString().padStart(6, "0");
-
     try {
       const response = await axios.post(
-        "https://sms-api-ph-gceo.onrender.com/send/sms",
+        "https://bprcrthwboowrexrvplu.supabase.co/functions/v1/generate-otp",
         {
-          recipient: `${countryCallingCode + phone}`,
-          message: `Your verification code is ${otp}`,
+          phone: `${countryCallingCode + phone}`,
         },
         {
           headers: {
-            "x-api-key": "sk-8ea40031593fed87ac91b34f",
             "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
           },
         },
       );
 
-      prettyLog("Success sending sms:", response.data);
+      prettyLog("Otp generated:", response.data);
     } catch (error: any) {
-      console.error("Error sending sms:", error?.response?.data || error);
+      prettyLog("Error generating otp:", error?.response?.data || error);
     }
   };
 
@@ -168,7 +160,6 @@ const RegisterScreen = () => {
         </View>
 
       </View>
-
     </View>
 
   </View>
