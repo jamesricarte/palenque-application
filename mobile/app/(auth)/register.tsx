@@ -1,9 +1,12 @@
-import { View, Text, TextInput, TouchableOpacity, Image } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Image, Pressable } from "react-native";
 import React, { useState } from "react";
 import { Link } from "expo-router";
 import axios from "axios";
 import * as Crypto from "expo-crypto";
 import AuthBackground from "../../assets/authBackground.png";
+import PhilippineFlag from "../../assets/philippineFlag.png";
+import IconGoogle from "../../assets/iconGoogle.png";
+import IconFacebook from "../../assets/iconFacebook.png";
 
 import { supabase } from "@/config/supabaseClient";
 
@@ -53,25 +56,28 @@ const RegisterScreen = () => {
   return (
     <View className="flex-1 bg-white">
 
-      {/* Top Section */}
-      <View className="h-[30%]">
+    {/* Top Section */}
+    <View className="h-[30%]">
+      <Image
+        source={AuthBackground}
+        className="w-full h-full"
+        resizeMode="cover"
+      />
+    </View>
 
-          <Image
-          source={AuthBackground}
-          className="w-full h-full"
-          resizeMode="cover"
-        />
+    {/* Bottom Section */}
+    <View className="absolute top-[20%] left-0 right-0 bottom-0 bg-white rounded-t-[30px]">
 
-      </View>
+      <View className="flex-1 mx-6 mt-10">
 
-      {/* Bottom Section */}
-      <View className="absolute top-[20%] left-0 right-0 bg-white rounded-t-[30px] h-screen">
+        {/* This wrapper pushes footer to bottom */}
+        <View className="flex-1 justify-between">
 
-        <View className="mx-6 mt-8">
+          {/* ===== MAIN CONTENT ===== */}
+          <View>
 
             {/* Header */}
             <View className="mb-8">
-
               <Text className="text-3xl font-semibold">
                 Create your account
               </Text>
@@ -79,66 +85,93 @@ const RegisterScreen = () => {
               <Text className="text-primary-500 text-xl">
                 Be part of something fresh.
               </Text>
-
             </View>
 
             {/* Phone Input */}
             <View className="mb-6">
-        
-              <View className="flex-row items-center px-4 py-3 border border-gray-300 rounded-xl">
-                <Text className="mr-2 text-gray-600">{countryCallingCode}</Text>
+              <View className="flex-row gap-2">
+
+                <View className="flex-row items-center justify-center gap-1 bg-white-600 rounded-md px-3 py-2">
+                  <Image
+                    source={PhilippineFlag}
+                    className="w-5 h-5"
+                    resizeMode="contain"
+                  />
+                  <Text className="font-semibold text-lg">
+                    {countryCallingCode}
+                  </Text>
+                </View>
+
                 <TextInput
-                  placeholder="Enter mobile number"
+                  placeholder="Mobile Number"
+                  placeholderTextColor="#b5b5b5"
                   keyboardType="phone-pad"
-                  className="flex-1 text-gray-900"
+                  className="flex-1 text-lg border border-white-600 rounded-md p-4"
                   value={phone}
                   onChangeText={(value) => setPhone(value)}
                 />
               </View>
-
-              {error && <Text className="mt-6 text-red-500">{error}</Text>}
             </View>
 
             {/* Register Button */}
-            <TouchableOpacity
-              className="py-4 mb-6 bg-primary-500 rounded-xl"
+            <Pressable
+              className="py-4 bg-primary-500 rounded-md"
               onPress={signUpWithPhone}
             >
               <Text className="text-lg font-semibold text-center text-white">
                 Continue
               </Text>
-            </TouchableOpacity>
+            </Pressable>
 
             {/* Divider */}
-            <View className="flex-row items-center mb-6">
-              <View className="flex-1 h-[1px] bg-gray-200" />
-              <Text className="mx-4 text-gray-400">OR</Text>
-              <View className="flex-1 h-[1px] bg-gray-200" />
+            <View className="flex-row items-center my-10">
+              <View className="flex-1 h-[1px] bg-black-100" />
+              <Text className="mx-4 text-white-700">Or register with</Text>
+              <View className="flex-1 h-[1px] bg-black-100" />
             </View>
 
             {/* Social Signup */}
-            <View className="gap-3">
-              <TouchableOpacity className="py-4 border border-gray-300 rounded-xl">
-                <Text className="font-medium text-center">Sign up with Google</Text>
-              </TouchableOpacity>
+            <View className="gap-6">
+              <Pressable className="py-4 border border-white-600 rounded-md justify-center items-center relative">
+                <Image
+                  source={IconGoogle}
+                  className="w-5 h-5 absolute left-4"
+                  resizeMode="contain"
+                />
+                <Text className="font-semibold text-center text-lg">
+                  Continue with Google
+                </Text>
+              </Pressable>
 
-              <TouchableOpacity className="py-4 border border-gray-300 rounded-xl">
-                <Text className="font-medium text-center">Sign up with Facebook</Text>
-              </TouchableOpacity>
+              <Pressable className="py-4 border border-white-600 rounded-md justify-center items-center relative">
+                <Image
+                  source={IconFacebook}
+                  className="w-5 h-5 absolute left-4"
+                  resizeMode="contain"
+                />
+                <Text className="font-semibold text-center text-lg">
+                  Continue with Facebook
+                </Text>
+              </Pressable>
             </View>
 
-            {/* Footer */}
-            <View className="flex-row justify-center mt-10">
-              <Text className="mr-1 text-gray-500">Already have an account?</Text>
-              <Link href="/(auth)/login" replace className="font-semibold text-black">
-                Login
-              </Link>
-            </View>
+          </View>
+
+          {/* ===== FOOTER (FLOATING AT BOTTOM) ===== */}
+          <View className="flex-row justify-center items-center pb-20">
+            <Text className="mr-1 text-lg">Already have an account?</Text>
+            <Link href="/(auth)/login" replace className="text-lg">
+              Login
+            </Link>
+          </View>
+
         </View>
-        
+
       </View>
 
     </View>
+
+  </View>
   );
 };
 
