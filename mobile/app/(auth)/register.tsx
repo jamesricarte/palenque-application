@@ -151,7 +151,7 @@ const RegisterScreen = () => {
 
           {/* ===== FOOTER (FLOATING AT BOTTOM) ===== */}
           <View className="flex-row justify-center items-center pb-10">
-            <Text className="mr-1 text-lg">Already have an account?</Text>
+            <Text className="mr-1 text-xl">Already have an account?</Text>
             <Link href="/(auth)/login" replace className="text-lg">
               Login
             </Link>
