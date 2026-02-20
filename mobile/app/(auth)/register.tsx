@@ -123,7 +123,7 @@ const RegisterScreen = () => {
             </View>
 
             {/* Social Signup */}
-            <View className="gap-6">
+            <View className="gap-4">
               <Pressable className="py-4 border border-white-600 rounded-md justify-center items-center relative">
                 <Image
                   source={IconGoogle}
@@ -150,7 +150,7 @@ const RegisterScreen = () => {
           </View>
 
           {/* ===== FOOTER (FLOATING AT BOTTOM) ===== */}
-          <View className="flex-row justify-center items-center pb-20">
+          <View className="flex-row justify-center items-center pb-10">
             <Text className="mr-1 text-lg">Already have an account?</Text>
             <Link href="/(auth)/login" replace className="text-lg">
               Login
