@@ -46,7 +46,7 @@ const LoginScreen = () => {
             </View>
 
             {/* Login Fields */}
-           <View className="mb-6">
+           <View className="mb-2">
               <View className="gap-4">
 
                 {/* Mobile Number */}
@@ -82,6 +82,10 @@ const LoginScreen = () => {
                 </View>
 
               </View>
+            </View>
+
+            <View className="flex-row justify-end mb-6">
+              <Text className="text-primary-500 text-xl">Forgot Password?</Text>
             </View>
 
             {/* Register Button */}
@@ -130,7 +134,7 @@ const LoginScreen = () => {
 
           {/* ===== FOOTER (FLOATING AT BOTTOM) ===== */}
           <View className="flex-row justify-center items-center pb-10">
-            <Text className="mr-1 text-lg">Don’t have an account?</Text>
+            <Text className="mr-1 text-xl">Don’t have an account?</Text>
             <Link href="/(auth)/register" replace className="text-lg">
               Register
             </Link>
