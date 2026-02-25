@@ -4,9 +4,9 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-import { AuthProvider } from "@/providers/AuthProvider";
+import { AuthProvider } from "@/src/providers/AuthProvider";
 
-import { prettyLog } from "@/utils/pretyyLog";
+import { prettyLog } from "@/src/utils/pretyyLog";
 
 global.prettyLog = prettyLog;
 

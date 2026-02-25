@@ -1,168 +1,146 @@
-import { View, Text, TextInput, TouchableOpacity, Image, Pressable } from "react-native";
-import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Image,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
 import { Link } from "expo-router";
-import axios from "axios";
-import * as Crypto from "expo-crypto";
-import AuthBackground from "../../assets/authBackground.png";
-import PhilippineFlag from "../../assets/philippineFlag.png";
-import IconGoogle from "../../assets/iconGoogle.png";
-import IconFacebook from "../../assets/iconFacebook.png";
+import AuthBackground from "@/src/assets/authBackground.png";
+import PhilippineFlag from "@/src/assets/philippineFlag.png";
+import IconGoogle from "@/src/assets/iconGoogle.png";
+import IconFacebook from "@/src/assets/iconFacebook.png";
 
-import { supabase } from "@/config/supabaseClient";
+import { useRegister } from "@/src/features/auth/useRegister";
+import { StatusBar } from "expo-status-bar";
 
 const RegisterScreen = () => {
-  const [phone, setPhone] = useState("");
-  const [error, setError] = useState("");
-
-  const countryCallingCode: string = "+63";
-
-  const signUpWithPhone = async () => {
-    if (error) setError("");
-
-    if (!phone) {
-      console.error("Empty phone number!");
-      setError("The mobile number should not be empty.");
-      return;
-    }
-
-    try {
-      const response = await axios.post(
-        "https://bprcrthwboowrexrvplu.supabase.co/functions/v1/generate-otp",
-        {
-          phone: `${countryCallingCode + phone}`,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
-          },
-        },
-      );
-
-      prettyLog("Otp generated:", response.data);
-    } catch (error: any) {
-      prettyLog("Error generating otp:", error?.response?.data || error);
-    }
-  };
+  const {
+    countryCallingCode,
+    phone,
+    setPhone,
+    loading,
+    signUpWithPhone,
+    error,
+  } = useRegister();
 
   return (
     <View className="flex-1 bg-white">
+      <StatusBar style="light" />
 
-    {/* Top Section */}
-    <View className="h-[30%]">
-      <Image
-        source={AuthBackground}
-        className="w-full h-full"
-        resizeMode="cover"
-      />
-    </View>
+      {/* Top Section */}
+      <View className="h-[30%]">
+        <Image
+          source={AuthBackground}
+          className="w-full h-full"
+          resizeMode="cover"
+        />
+      </View>
 
-    {/* Bottom Section */}
-    <View className="absolute top-[20%] left-0 right-0 bottom-0 bg-white rounded-t-[30px]">
+      {/* Bottom Section */}
+      <View className="absolute top-[20%] left-0 right-0 bottom-0 bg-white rounded-t-[30px]">
+        <View className="flex-1 mx-6 mt-10">
+          {/* This wrapper pushes footer to bottom */}
+          <View className="justify-between flex-1">
+            {/* ===== MAIN CONTENT ===== */}
+            <View>
+              {/* Header */}
+              <View className="mb-8">
+                <Text className="text-3xl font-semibold">
+                  Create your account
+                </Text>
 
-      <View className="flex-1 mx-6 mt-10">
+                <Text className="text-xl text-primary-500">
+                  Be part of something fresh.
+                </Text>
+              </View>
 
-        {/* This wrapper pushes footer to bottom */}
-        <View className="flex-1 justify-between">
+              {/* Phone Input */}
+              <View className="mb-6">
+                <View className="flex-row gap-2">
+                  <View className="flex-row items-center justify-center gap-1 px-3 py-2 rounded-md bg-white-600">
+                    <Image
+                      source={PhilippineFlag}
+                      className="w-5 h-5"
+                      resizeMode="contain"
+                    />
+                    <Text className="text-lg font-semibold">
+                      {countryCallingCode}
+                    </Text>
+                  </View>
 
-          {/* ===== MAIN CONTENT ===== */}
-          <View>
+                  <TextInput
+                    placeholder="Mobile Number"
+                    placeholderTextColor="#b5b5b5"
+                    keyboardType="phone-pad"
+                    className={`flex-1 p-4 text-lg border rounded-md ${error ? "border-red-500" : "border-white-600"}`}
+                    value={phone}
+                    onChangeText={(value) => setPhone(value)}
+                  />
+                </View>
+              </View>
 
-            {/* Header */}
-            <View className="mb-8">
-              <Text className="text-3xl font-semibold">
-                Create your account
-              </Text>
+              {error && <Text className="mb-6 text-red-500">{error}</Text>}
 
-              <Text className="text-primary-500 text-xl">
-                Be part of something fresh.
-              </Text>
-            </View>
+              {/* Register Button */}
+              <Pressable
+                className={`py-4 rounded-md ${!loading ? "bg-primary-500" : "bg-gray-300"} `}
+                onPress={signUpWithPhone}
+              >
+                {!loading ? (
+                  <Text className="text-lg font-semibold text-center text-white">
+                    Continue
+                  </Text>
+                ) : (
+                  <ActivityIndicator size="small" color="white" />
+                )}
+              </Pressable>
 
-            {/* Phone Input */}
-            <View className="mb-6">
-              <View className="flex-row gap-2">
+              {/* Divider */}
+              <View className="flex-row items-center my-10">
+                <View className="flex-1 h-[1px] bg-black-100" />
+                <Text className="mx-4 text-white-700">Or register with</Text>
+                <View className="flex-1 h-[1px] bg-black-100" />
+              </View>
 
-                <View className="flex-row items-center justify-center gap-1 bg-white-600 rounded-md px-3 py-2">
+              {/* Social Signup */}
+              <View className="gap-4">
+                <Pressable className="relative items-center justify-center py-4 border rounded-md border-white-600">
                   <Image
-                    source={PhilippineFlag}
-                    className="w-5 h-5"
+                    source={IconGoogle}
+                    className="absolute w-5 h-5 left-4"
                     resizeMode="contain"
                   />
-                  <Text className="font-semibold text-lg">
-                    {countryCallingCode}
+                  <Text className="text-lg font-semibold text-center">
+                    Continue with Google
                   </Text>
-                </View>
+                </Pressable>
 
-                <TextInput
-                  placeholder="Mobile Number"
-                  placeholderTextColor="#b5b5b5"
-                  keyboardType="phone-pad"
-                  className="flex-1 text-lg border border-white-600 rounded-md p-4"
-                  value={phone}
-                  onChangeText={(value) => setPhone(value)}
-                />
+                <Pressable className="relative items-center justify-center py-4 border rounded-md border-white-600">
+                  <Image
+                    source={IconFacebook}
+                    className="absolute w-5 h-5 left-4"
+                    resizeMode="contain"
+                  />
+                  <Text className="text-lg font-semibold text-center">
+                    Continue with Facebook
+                  </Text>
+                </Pressable>
               </View>
             </View>
 
-            {/* Register Button */}
-            <Pressable
-              className="py-4 bg-primary-500 rounded-md"
-              onPress={signUpWithPhone}
-            >
-              <Text className="text-lg font-semibold text-center text-white">
-                Continue
-              </Text>
-            </Pressable>
-
-            {/* Divider */}
-            <View className="flex-row items-center my-10">
-              <View className="flex-1 h-[1px] bg-black-100" />
-              <Text className="mx-4 text-white-700">Or register with</Text>
-              <View className="flex-1 h-[1px] bg-black-100" />
+            {/* ===== FOOTER (FLOATING AT BOTTOM) ===== */}
+            <View className="flex-row items-center justify-center pb-10">
+              <Text className="mr-1 text-xl">Already have an account?</Text>
+              <Link href="/(auth)/login" replace className="text-lg">
+                Login
+              </Link>
             </View>
-
-            {/* Social Signup */}
-            <View className="gap-4">
-              <Pressable className="py-4 border border-white-600 rounded-md justify-center items-center relative">
-                <Image
-                  source={IconGoogle}
-                  className="w-5 h-5 absolute left-4"
-                  resizeMode="contain"
-                />
-                <Text className="font-semibold text-center text-lg">
-                  Continue with Google
-                </Text>
-              </Pressable>
-
-              <Pressable className="py-4 border border-white-600 rounded-md justify-center items-center relative">
-                <Image
-                  source={IconFacebook}
-                  className="w-5 h-5 absolute left-4"
-                  resizeMode="contain"
-                />
-                <Text className="font-semibold text-center text-lg">
-                  Continue with Facebook
-                </Text>
-              </Pressable>
-            </View>
-
           </View>
-
-          {/* ===== FOOTER (FLOATING AT BOTTOM) ===== */}
-          <View className="flex-row justify-center items-center pb-10">
-            <Text className="mr-1 text-xl">Already have an account?</Text>
-            <Link href="/(auth)/login" replace className="text-lg">
-              Login
-            </Link>
-          </View>
-
         </View>
-
       </View>
     </View>
-
-  </View>
   );
 };
 

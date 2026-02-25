@@ -3,87 +3,124 @@
 // This enables autocomplete, go to definition, etc.
 
 // Setup type definitions for built-in Supabase Runtime APIs
-import "@supabase/functions-js/edge-runtime.d.ts"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.0"
+import "@supabase/functions-js/edge-runtime.d.ts";
+import { supabaseAdmin } from "../_shared/supabaseAdmin.ts";
+import axios from "npm:axios@1.6.2";
 
-const supabaseUrl = Deno.env.get("_SUPABASE_URL") as string
-const supabaseKey = Deno.env.get("_SUPABASE_SERVICE_ROLE_KEY") as string
-const supabase = createClient(supabaseUrl, supabaseKey)
+const enc = new TextEncoder();
 
-function generateOtp6(): string {
-  const buf = new Uint32Array(1)
-  crypto.getRandomValues(buf)
+const HMAC_KEY = await crypto.subtle.importKey(
+  "raw",
+  enc.encode(Deno.env.get("OTP_PEPPER")!),
+  { name: "HMAC", hash: "SHA-256" },
+  false,
+  ["sign"],
+);
 
-  const otp = (buf[0] % 1_000_000).toString().padStart(6, "0")
-  return otp
-}
+const generateOtp6 = (): string => {
+  const buf = new Uint32Array(1);
+  crypto.getRandomValues(buf);
 
-// --- helpers ---
-const enc = new TextEncoder()
+  const otp = (buf[0] % 1_000_000).toString().padStart(6, "0");
+  return otp;
+};
 
-function toBase64Url(bytes: ArrayBuffer) {
-  const u8 = new Uint8Array(bytes)
-  let bin = ""
-  for (const b of u8) bin += String.fromCharCode(b)
-  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
-}
+const hex = (buf: ArrayBuffer) => {
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0"))
+    .join(
+      "",
+    );
+};
 
-async function hmacOtp(otp: string, phone: string) {
-  const pepper = Deno.env.get("OTP_PEPPER")!
-  // include phone so the same OTP for different phones != same hash
-  const msg = `${phone}:${otp}`
-
-  const key = await crypto.subtle.importKey(
-    "raw",
-    enc.encode(pepper),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  )
-
-  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(msg))
-  return toBase64Url(sig)
-}
+const otpHash = async (otp: string, phone: string) => {
+  const sig = await crypto.subtle.sign(
+    "HMAC",
+    HMAC_KEY,
+    enc.encode(`${phone}:${otp}`),
+  );
+  return hex(sig);
+};
 
 Deno.serve(async (req) => {
   try {
-    const { phone } = await req.json()
+    const { phone } = await req.json();
 
-  if (!phone) {
-    return new Response(JSON.stringify({error: "phone is required"}), {
-      status: 400,
-      headers: { "Content-Type": "application/json" }
-    })
-  }
+    if (!phone) {
+      return new Response(JSON.stringify({ error: "phone is required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
-  const otp = generateOtp6()
+    const otp = generateOtp6();
+    console.log("Otp:", otp);
+    const otp_hash = await otpHash(otp, phone);
+    const expires_at = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
-    // Store hashed OTP + expiry in DB, then send OTP via SMS provider
-  const otp_hash = await hmacOtp(otp, phone)
-  const expires_at = new Date(Date.now() + 5 * 60 * 1000).toString()
+    const { error } = await supabaseAdmin.from("phone_otps").insert({
+      phone,
+      otp_hash,
+      expires_at,
+    });
 
-  const { error } = await supabase.from("phone_otps").insert({
-    phone,
-    otp: otp_hash,
-    expires_at
-  })
+    if (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 500,
+      });
+    }
 
-  if (error) {
-    return new Response(JSON.stringify({error: error.message}), {status: 500})
-  }
+    // Send OTP via sms provider
+    // try {
+    //   const response = await axios.post(
+    //     "https://sms-api-ph-gceo.onrender.com/send/sms",
+    //     {
+    //       recipient: phone,
+    //       message: `Your verification code is ${otp}`,
+    //     },
+    //     {
+    //       headers: {
+    //         "x-api-key": "sk-8ea40031593fed87ac91b34f",
+    //         "Content-Type": "application/json",
+    //       },
+    //     },
+    //   );
 
-  return new Response(
-    JSON.stringify({ ok: true}),
-    { headers: { "Content-Type": "application/json" } },
-  )
+    //   if (response.data) {
+    //     console.log("Response from sms-api-ph:", response.data);
+    //   }
+    // } catch (error: any) {
+    //   console.error(
+    //     "Error sending sms:",
+    //     error?.response?.data || error?.message || error,
+    //   );
+
+    //   return new Response(
+    //     JSON.stringify({
+    //       error: error?.response?.data?.error ||
+    //         error?.response?.data || error?.message || error ||
+    //         "Unknown error",
+    //       message: "Error sending otp to your phone number.",
+    //     }),
+    //     {
+    //       status: 500,
+    //     },
+    //   );
+    // }
+
+    return new Response(
+      JSON.stringify({ success: true, phone }),
+      {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   } catch (error) {
-    return new Response(JSON.stringify({error: error}), {
-      status: 400,
-      headers: { "Content-Type": "application/json"}
-    })
+    return new Response(JSON.stringify({ error: error }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
-  
-})
+});
 
 /* To invoke locally:
 

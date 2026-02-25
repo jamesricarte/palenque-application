@@ -21,7 +21,7 @@ module.exports = {
           600: "#e8e8e8",
           700: "#b5b5b5",
         },
-        black: {
+        brandBlack: {
           DEFUALT: "#1f2933",
           100: "#e9eaeb",
           200: "#babdc0",
