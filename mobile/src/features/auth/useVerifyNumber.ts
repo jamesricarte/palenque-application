@@ -94,10 +94,15 @@ export function useVerifyNumber() {
             );
 
             if (response.data.success && response.data.phone) {
-                router.push({
-                    pathname: "/(auth)/create-password",
-                    params: { phone: response.data.phone },
-                });
+                if (!response.data.isUserExists) {
+                    router.push({
+                        pathname: "/(auth)/create-password",
+                        params: { phone: response.data.phone },
+                    });
+                } else {
+                    console.error("User already existed.");
+                    router.replace("/(auth)/login");
+                }
             }
         } catch (error: any) {
             const message = error?.response?.data?.error ||

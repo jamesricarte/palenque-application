@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Image,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState } from "react";
 import { Link } from "expo-router";
@@ -15,9 +16,21 @@ import IconFacebook from "@/src/assets/iconFacebook.png";
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 
+import { useLogin } from "@/src/features/auth/useLogin";
+
 const LoginScreen = () => {
   const countryCallingCode = "+63";
   const [passwordVisible, setPasswordVisible] = useState(false);
+
+  const {
+    phone,
+    setPhone,
+    password,
+    setPassword,
+    error,
+    loading,
+    signInWithPassword,
+  } = useLogin();
 
   return (
     <View className="flex-1 bg-white">
@@ -58,6 +71,8 @@ const LoginScreen = () => {
                     placeholder="Mobile Number"
                     placeholderTextColor="#b5b5b5"
                     keyboardType="phone-pad"
+                    value={phone}
+                    onChangeText={setPhone}
                     className="w-full p-4 text-lg border rounded-md border-white-600"
                   />
 
@@ -67,6 +82,8 @@ const LoginScreen = () => {
                       placeholder="Password"
                       placeholderTextColor="#b5b5b5"
                       secureTextEntry={!passwordVisible}
+                      value={password}
+                      onChangeText={setPassword}
                       className="w-full p-4 pr-12 text-lg border rounded-md border-white-600"
                     />
 
@@ -83,6 +100,10 @@ const LoginScreen = () => {
                     </Pressable>
                   </View>
                 </View>
+
+                {error ? (
+                  <Text className="mt-4 text-red-500">{error}</Text>
+                ) : null}
               </View>
 
               <View className="flex-row justify-end mb-6">
@@ -93,12 +114,19 @@ const LoginScreen = () => {
 
               {/* Register Button */}
               <Pressable
-                className="py-4 rounded-md bg-primary-500"
-                onPress={() => {}}
+                className={`py-4 rounded-md ${
+                  !loading ? "bg-primary-500" : "bg-gray-300"
+                }`}
+                onPress={signInWithPassword}
+                disabled={loading}
               >
-                <Text className="text-lg font-semibold text-center text-white">
-                  Login
-                </Text>
+                {!loading ? (
+                  <Text className="text-lg font-semibold text-center text-white">
+                    Login
+                  </Text>
+                ) : (
+                  <ActivityIndicator size="small" color="white" />
+                )}
               </Pressable>
 
               {/* Divider */}

@@ -18,7 +18,7 @@ const ConsumerTabsLayout = () => {
       <Tabs.Screen
         name="orders/index"
         options={{
-          title: "Home",
+          title: "Orders",
           tabBarIcon: ({ size, color }) => (
             <Ionicons name="cube-outline" size={size} color={color} />
           ),

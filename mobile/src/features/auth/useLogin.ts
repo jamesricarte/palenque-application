@@ -1,14 +1,17 @@
 import { useState } from "react";
-import axios from "axios";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 import { supabase } from "@/src/config/supabaseClient";
 
-export function useRegister() {
-    const [phone, setPhone] = useState("");
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
+export function useLogin() {
+    const router = useRouter();
 
     const countryCallingCode: string = "+63";
+
+    const [phone, setPhone] = useState("");
+    const [password, setPassword] = useState("");
+
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     class ValidationError extends Error {
         name: string = "ValidationError";
@@ -29,7 +32,7 @@ export function useRegister() {
         if (!p) {
             throw new ValidationError("The phone number should not be empty.");
         }
-        if (!/^\d+$/.test(p)) {
+        if (!/^[\d]+$/.test(p)) {
             throw new ValidationError(
                 "The phone number must contain digits only.",
             );
@@ -37,16 +40,22 @@ export function useRegister() {
         if (!/^\+\d{1,3}$/.test(countryCallingCode)) {
             throw new ValidationError("Invalid country calling code.");
         }
+
+        // If user typed "09xxxxxxxxx", remove leading zeros
         if (p.startsWith("0")) {
             p = p.replace(/^0+/, "");
             setPhone(p);
         }
-        if (p.length !== 10) throw new ValidationError("Invalid phone number.");
+
+        // PH numbers without country code are usually 10 digits (9xxxxxxxxx)
+        if (p.length !== 10) {
+            throw new ValidationError("Invalid phone number.");
+        }
 
         return `${countryCallingCode}${p}`;
     }
 
-    const signUpWithPhone = async () => {
+    const signInWithPassword = async () => {
         try {
             if (error) setError("");
             setLoading(true);
@@ -56,38 +65,30 @@ export function useRegister() {
                 countryCallingCode,
             });
 
-            const { data, error: phoneCheckErr } = await supabase.from("users")
-                .select().eq("phone", fullPhone).maybeSingle();
-
-            if (phoneCheckErr) throw new Error(phoneCheckErr.message);
-
-            if (data) {
-                throw new Error("User already existed.");
+            if (!password?.trim()) {
+                throw new ValidationError("The password should not be empty.");
             }
 
-            const response = await axios.post(
-                "https://bprcrthwboowrexrvplu.supabase.co/functions/v1/generate-otp",
-                {
-                    phone: fullPhone,
-                },
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization:
-                            `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
-                    },
-                },
-            );
+            const email = `${fullPhone}@palenque.dev`;
 
-            if (response.data.success && response.data.phone) {
-                router.push({
-                    pathname: "/(auth)/verify-number",
-                    params: { phone: response.data.phone },
+            const { data, error: signInErr } = await supabase.auth
+                .signInWithPassword({
+                    email,
+                    password,
                 });
+
+            if (signInErr) throw new Error(signInErr.message);
+
+            if (data?.session) {
+                if (router.canDismiss?.()) {
+                    router.dismissAll();
+                }
+                router.replace("/(app)/(consumer-tabs)/home");
             }
         } catch (error: any) {
             const message = error?.response?.data?.error ||
-                error?.response?.data || error?.message ||
+                error?.response?.data ||
+                error?.message ||
                 "Unknown error";
 
             setError(message);
@@ -98,11 +99,14 @@ export function useRegister() {
     };
 
     return {
+        router,
         countryCallingCode,
         phone,
         setPhone,
-        loading,
-        signUpWithPhone,
+        password,
+        setPassword,
         error,
+        loading,
+        signInWithPassword,
     };
 }

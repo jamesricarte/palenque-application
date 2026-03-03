@@ -125,8 +125,27 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Check if the phone is already registered
+    const { data: userRow, error: phoneCheckErr } = await supabaseAdmin
+      .from("users").select().eq("phone", phone).maybeSingle();
+
+    if (phoneCheckErr) {
+      return new Response(JSON.stringify({ error: phoneCheckErr.message }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    let isUserExists = false;
+
+    console.log("userRow:", userRow);
+
+    if (userRow) {
+      isUserExists = true;
+    }
+
     return new Response(
-      JSON.stringify({ success: true, phone }),
+      JSON.stringify({ success: true, phone, isUserExists }),
       {
         status: 200,
         headers: { "Content-Type": "application/json" },

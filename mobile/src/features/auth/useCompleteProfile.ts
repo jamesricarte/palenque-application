@@ -73,7 +73,9 @@ export const useCompleteProfile = () => {
                 throw new Error(error.message);
             }
 
-            router.dismissAll();
+            if (router.canDismiss?.()) {
+                router.dismissAll();
+            }
             router.replace("/(app)/(consumer-tabs)/home");
         } catch (error: any) {
             const message = error?.response?.data?.error ||

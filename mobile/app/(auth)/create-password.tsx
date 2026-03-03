@@ -139,23 +139,7 @@ const CreatePasswordScreen = () => {
 
               <RequirementRow
                 met={requirements.minLength}
-                label="At least 8 characters"
-              />
-              <RequirementRow
-                met={requirements.hasLowercase}
-                label="At least 1 lowercase letter"
-              />
-              <RequirementRow
-                met={requirements.hasUppercase}
-                label="At least 1 uppercase letter"
-              />
-              <RequirementRow
-                met={requirements.hasDigit}
-                label="At least 1 digit"
-              />
-              <RequirementRow
-                met={requirements.hasSymbol}
-                label="At least 1 symbol"
+                label="At least 6 characters"
               />
               <RequirementRow
                 met={requirements.passwordsMatch}

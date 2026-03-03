@@ -7,9 +7,7 @@ import { supabase } from "@/src/config/supabaseClient";
 export const useCreatePassword = () => {
     const { phone } = useLocalSearchParams<{ phone?: string }>();
 
-    const minLength = 8;
-
-    const symbolRegex = /[^A-Za-z0-9]/;
+    const minLength = 6;
 
     const [formData, setFormData] = useState({
         password: "",
@@ -32,23 +30,12 @@ export const useCreatePassword = () => {
 
         return {
             minLength: pw.length >= minLength,
-            hasLowercase: /[a-z]/.test(pw),
-            hasUppercase: /[A-Z]/.test(pw),
-            hasDigit: /\d/.test(pw),
-            hasSymbol: symbolRegex.test(pw),
             passwordsMatch: !!pw && pw === formData.confirmPassword,
         };
     }, [formData.password, formData.confirmPassword, minLength]);
 
     const isComplete = useMemo(() => {
-        return (
-            requirements.minLength &&
-            requirements.hasLowercase &&
-            requirements.hasUppercase &&
-            requirements.hasDigit &&
-            requirements.hasSymbol &&
-            requirements.passwordsMatch
-        );
+        return requirements.minLength && requirements.passwordsMatch;
     }, [requirements]);
 
     const validate = () => {
@@ -57,18 +44,6 @@ export const useCreatePassword = () => {
         }
         if (!requirements.minLength) {
             return `Password must be at least ${minLength} characters.`;
-        }
-        if (!requirements.hasLowercase) {
-            return "Password must include at least 1 lowercase letter.";
-        }
-        if (!requirements.hasUppercase) {
-            return "Password must include at least 1 uppercase letter.";
-        }
-        if (!requirements.hasDigit) {
-            return "Password must include at least 1 digit.";
-        }
-        if (!requirements.hasSymbol) {
-            return "Password must include at least 1 symbol.";
         }
         if (!requirements.passwordsMatch) {
             return "Passwords do not match.";
@@ -105,7 +80,7 @@ export const useCreatePassword = () => {
                 const id: string = data.user?.id;
 
                 const { error: insertError } = await supabase.from("users")
-                    .insert({ user_id: id, status: "active" });
+                    .insert({ user_id: id, status: "active", phone });
 
                 if (insertError) {
                     console.error("Error inserting new user:", insertError);
