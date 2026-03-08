@@ -16,15 +16,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const getUserId = async (session: any) => {
+    const userId = session?.user?.id || null;
+    if (!userId) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select()
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (error) throw new Error(error.message);
+
+      if (!data) {
+        throw new Error("User is not registered.");
+      }
+
+      session.user.id = data?.id || null;
+
+      return session;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  };
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
+    supabase.auth.getSession().then(async ({ data }) => {
+      setSession(await getUserId(data.session));
       setIsLoading(false);
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+    const { data: sub } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        setSession(await getUserId(session));
+      },
+    );
 
     return () => sub.subscription.unsubscribe();
   }, []);

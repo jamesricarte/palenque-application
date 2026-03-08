@@ -87,7 +87,7 @@ export const useCreatePassword = () => {
                     throw new Error(insertError.message);
                 }
 
-                router.push({
+                router.replace({
                     pathname: "/(auth)/complete-profile",
                     params: { id },
                 });

@@ -100,8 +100,7 @@ export function useVerifyNumber() {
                         params: { phone: response.data.phone },
                     });
                 } else {
-                    console.error("User already existed.");
-                    router.replace("/(auth)/login");
+                    throw new Error("User already exists.");
                 }
             }
         } catch (error: any) {
