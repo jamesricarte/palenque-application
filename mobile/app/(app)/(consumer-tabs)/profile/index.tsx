@@ -8,10 +8,12 @@ import { Ionicons } from "@expo/vector-icons";
 const ProfileScreen = () => {
   const {
     userName,
+    hasApprovedVendorApplication,
     onPressCart,
     onPressViewProfile,
     onPressMyAddress,
     onPressBecomeVendor,
+    onPressVendorDashboard,
     onPressLogout,
   } = useProfile();
 
@@ -88,30 +90,63 @@ const ProfileScreen = () => {
             <View className="h-[1px] bg-white-600" />
 
             {/* Become a Vendor */}
-            <Pressable onPress={onPressBecomeVendor} className="py-4 pl-4 pr-2">
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center gap-3">
-                  <View className="items-center justify-center w-10 h-10 rounded-full bg-[#fef0ec]">
-                    <Ionicons
-                      name="checkmark-circle-outline"
-                      size={24}
-                      color="#f16b44"
-                    />
+            {hasApprovedVendorApplication ? (
+              <Pressable
+                onPress={onPressVendorDashboard}
+                className="py-4 pl-4 pr-2"
+              >
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center gap-3">
+                    <View className="items-center justify-center w-10 h-10 rounded-full bg-[#fef0ec]">
+                      <Ionicons
+                        name="storefront-outline"
+                        size={24}
+                        color="#f16b44"
+                      />
+                    </View>
+
+                    <View>
+                      <Text className="text-base font-semibold">
+                        Vendor Dashboard
+                      </Text>
+                      <Text className="mt-1 text-base text-white-700">
+                        Manage your vendor account
+                      </Text>
+                    </View>
                   </View>
 
-                  <View>
-                    <Text className="text-base font-semibold">
-                      Became a Vendor
-                    </Text>
-                    <Text className="mt-1 text-base text-white-700">
-                      Apply as partnered vendor
-                    </Text>
-                  </View>
+                  <Ionicons name="chevron-forward" size={24} color="#b5b5b5" />
                 </View>
+              </Pressable>
+            ) : (
+              <Pressable
+                onPress={onPressBecomeVendor}
+                className="py-4 pl-4 pr-2"
+              >
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center gap-3">
+                    <View className="items-center justify-center w-10 h-10 rounded-full bg-[#fef0ec]">
+                      <Ionicons
+                        name="checkmark-circle-outline"
+                        size={24}
+                        color="#f16b44"
+                      />
+                    </View>
 
-                <Ionicons name="chevron-forward" size={24} color="#b5b5b5" />
-              </View>
-            </Pressable>
+                    <View>
+                      <Text className="text-base font-semibold">
+                        Became a Vendor
+                      </Text>
+                      <Text className="mt-1 text-base text-white-700">
+                        Apply as partnered vendor
+                      </Text>
+                    </View>
+                  </View>
+
+                  <Ionicons name="chevron-forward" size={24} color="#b5b5b5" />
+                </View>
+              </Pressable>
+            )}
           </View>
 
           {/* Logout Button */}

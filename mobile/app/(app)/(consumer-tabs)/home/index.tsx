@@ -72,31 +72,19 @@ const HomeScreen = () => {
               contentContainerClassName="pr-2"
             >
               <View className="flex-row gap-6">
-                {categories.map((cat, idx) => (
+                {categories.map((cat) => (
                   <Pressable
                     key={cat.id}
                     onPress={() => {}}
                     className="items-center"
                   >
                     <View className="items-center justify-center w-16 h-16 border rounded-full border-primary-500">
-                      {/* Placeholder: replace with real image later */}
-                      <View
-                        className="w-[54px] h-[54px] rounded-full overflow-hidden"
-                        style={{
-                          backgroundColor:
-                            idx % 5 === 0
-                              ? "#FDE68A"
-                              : idx % 5 === 1
-                                ? "#BFDBFE"
-                                : idx % 5 === 2
-                                  ? "#FBCFE8"
-                                  : idx % 5 === 3
-                                    ? "#BBF7D0"
-                                    : "#FED7AA",
-                        }}
-                      >
-                        {/* Example image-ready slot */}
-                        {/* <Image source={...} className="w-full h-full" resizeMode="cover" /> */}
+                      <View className="w-[54px] h-[54px] rounded-full overflow-hidden">
+                        <Image
+                          source={cat.image}
+                          className="w-full h-full"
+                          resizeMode="cover"
+                        />
                       </View>
                     </View>
 
@@ -117,29 +105,20 @@ const HomeScreen = () => {
               contentContainerClassName="pt-4 pr-6"
             >
               <View className="flex-row gap-4">
-                {nearbyMarkets.map((m, idx) => (
+                {nearbyMarkets.map((m) => (
                   <Pressable
                     key={m.id}
                     onPress={() => {}}
-                    className="bg-white border rounded-xl border-white-600"
+                    className="bg-white border rounded-lg border-white-600"
                     style={{ width: 240 }}
                   >
                     {/* Image */}
-                    <View className="overflow-hidden rounded-t-xl h-28">
-                      <View
+                    <View className="overflow-hidden rounded-t-lg h-28">
+                      <Image
+                        source={m.image}
                         className="w-full h-full"
-                        style={{
-                          backgroundColor:
-                            idx % 3 === 0
-                              ? "#CBD5E1"
-                              : idx % 3 === 1
-                                ? "#E2E8F0"
-                                : "#D1D5DB",
-                        }}
-                      >
-                        {/* Ready to replace with real image later */}
-                        {/* <Image source={...} className="w-full h-full" resizeMode="cover" /> */}
-                      </View>
+                        resizeMode="cover"
+                      />
                     </View>
 
                     {/* Info */}
@@ -177,29 +156,20 @@ const HomeScreen = () => {
               contentContainerClassName="pt-4 pr-6"
             >
               <View className="flex-row gap-4">
-                {popularItems.map((item, idx) => (
+                {popularItems.map((item) => (
                   <Pressable
                     key={item.id}
                     onPress={() => {}}
-                    className="bg-white border rounded-xl border-white-600"
+                    className="bg-white border rounded-lg border-white-600"
                     style={{ width: 190 }}
                   >
                     {/* Image */}
-                    <View className="overflow-hidden rounded-t-xl h-28">
-                      <View
+                    <View className="overflow-hidden rounded-t-lg h-28">
+                      <Image
+                        source={item.image}
                         className="w-full h-full"
-                        style={{
-                          backgroundColor:
-                            idx % 3 === 0
-                              ? "#E5E7EB"
-                              : idx % 3 === 1
-                                ? "#D1FAE5"
-                                : "#FEF3C7",
-                        }}
-                      >
-                        {/* Ready to replace with real image later */}
-                        {/* <Image source={...} className="w-full h-full" resizeMode="cover" /> */}
-                      </View>
+                        resizeMode="cover"
+                      />
                     </View>
 
                     {/* Details */}
@@ -213,8 +183,11 @@ const HomeScreen = () => {
 
                       <View className="flex-row items-center gap-2 mt-2">
                         <View className="w-5 h-5 overflow-hidden rounded-full bg-white-600">
-                          {/* Ready for vendor avatar */}
-                          {/* <Image source={...} className="w-full h-full" /> */}
+                          <Image
+                            source={item.vendorAvatar}
+                            className="w-full h-full"
+                            resizeMode="cover"
+                          />
                         </View>
                         <Text className="text-sm text-white-700">
                           {item.vendor}
