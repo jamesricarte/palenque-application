@@ -1,4 +1,7 @@
-import { useMemo, useState } from "react";
+import { supabase } from "@/src/config/supabaseClient";
+import { useAuth } from "@/src/hooks/useAuth";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
 
 type Category = {
     id: string;
@@ -16,6 +19,54 @@ type Product = {
 };
 
 export const useProducts = () => {
+    const { vendorData } = useAuth();
+
+    const [products, setProducts] = useState<Product[]>([]);
+
+    useFocusEffect(
+        useCallback(() => {
+            const fetchProducts = async () => {
+                const vendorId = vendorData?.id;
+
+                try {
+                    if (!vendorId) throw new Error("User id is required");
+
+                    const { data, error } = await supabase.from("products")
+                        .select().eq("vendor_id", vendorId);
+
+                    if (error) throw new Error(error.message);
+
+                    if (data) {
+                        setProducts(
+                            data.map((product) => {
+                                const { data: imageData } = supabase.storage
+                                    .from("products")
+                                    .getPublicUrl(product.image_path);
+
+                                const categoryKey = product.categories
+                                    .toLowerCase();
+
+                                return {
+                                    id: String(product.id),
+                                    name: product.name,
+                                    category: product.categories,
+                                    categoryKey: categoryKey,
+                                    price: `₱ ${product.price}/${product.unit}`,
+                                    image: imageData.publicUrl,
+                                    available: true,
+                                };
+                            }),
+                        );
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            };
+
+            fetchProducts();
+        }, []),
+    );
+
     const categories = useMemo<Category[]>(
         () => [
             { id: "all", label: "All" },
@@ -26,29 +77,6 @@ export const useProducts = () => {
     );
 
     const [selectedCategory, setSelectedCategory] = useState("all");
-
-    const [products, setProducts] = useState<Product[]>([
-        {
-            id: "1",
-            name: "Yellowfin Tuna",
-            category: "Seafood",
-            categoryKey: "seafood",
-            price: "₱ 120.00/1kg",
-            available: true,
-            image:
-                "https://images.unsplash.com/photo-1510130387422-82bed34b37e9?auto=format&fit=crop&w=1200&q=80",
-        },
-        {
-            id: "2",
-            name: "Pork Belly",
-            category: "Meat",
-            categoryKey: "meat",
-            price: "₱ 200.00/1kg",
-            available: false,
-            image:
-                "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=1200&q=80",
-        },
-    ]);
 
     const filteredProducts = useMemo(() => {
         if (selectedCategory === "all") return products;

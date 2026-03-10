@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import MeatCategoryImage from "@/src/assets/Meat.png";
 import SeafoodCategoryImage from "@/src/assets/Seafood.png";
@@ -8,12 +8,81 @@ import VegetablesCategoryImage from "@/src/assets/Vegetables.png";
 import LegazpiCityPublicMarketImage from "@/src/assets/Legazpi_City_Public_Market_image.jpg";
 import GuinobatanPublicMarketImage from "@/src/assets/Guinobatan_Public_Market_image.jpg";
 import DaragaPublicMarketImage from "@/src/assets/Daraga_Public_Market_image.jpg";
-import TunaImage from "@/src/assets/Tuna.jpg";
 import MeatImage from "@/src/assets/Meat.jpg";
-import ChickenImage from "@/src/assets/Chicken.jpg";
+
+import { supabase } from "@/src/config/supabaseClient";
+import { useFocusEffect } from "expo-router";
 
 export const useHome = () => {
     const [search, setSearch] = useState("");
+
+    const [popularItems, setPopularItems] = useState<
+        {
+            id: string;
+            name: string;
+            vendor: string;
+            tag: string;
+            price: string;
+            image: { uri: string } | typeof LegazpiCityPublicMarketImage;
+            vendorAvatar: typeof LegazpiCityPublicMarketImage;
+        }[]
+    >([]);
+
+    useFocusEffect(
+        useCallback(() => {
+            const fetchProducts = async () => {
+                try {
+                    const { data, error } = await supabase.from("products")
+                        .select(`
+                        id,
+                        name,
+                        categories,
+                        price,
+                        unit,
+                        image_path,
+                        vendors (
+                            id,
+                            users (
+                                first_name,
+                                last_name
+                            )
+                        )`).limit(10);
+
+                    if (error) throw new Error(error.message);
+
+                    if (data) {
+                        setPopularItems(
+                            data.map((product: any) => {
+                                const { data: imageData } = supabase.storage
+                                    .from("products")
+                                    .getPublicUrl(product.image_path);
+
+                                const vendorName = `${
+                                    product.vendors.users.first_name ?? ""
+                                } ${product.vendors.users.last_name ?? ""}`;
+
+                                return {
+                                    id: String(product.id),
+                                    name: product.name,
+                                    vendor: vendorName,
+                                    tag: product.categories,
+                                    price: `₱ ${product.price}/${product.unit}`,
+                                    image: product.image_path
+                                        ? { uri: imageData.publicUrl }
+                                        : MeatImage,
+                                    vendorAvatar: LegazpiCityPublicMarketImage,
+                                };
+                            }),
+                        );
+                    }
+                } catch (error: any) {
+                    console.error(error);
+                }
+            };
+
+            fetchProducts();
+        }, []),
+    );
 
     const categories = useMemo(
         () => [
@@ -52,39 +121,6 @@ export const useHome = () => {
                 address: "Address - 2 km",
                 status: "Open",
                 image: DaragaPublicMarketImage,
-            },
-        ],
-        [],
-    );
-
-    const popularItems = useMemo(
-        () => [
-            {
-                id: "tuna",
-                name: "Yellowfin Tuna",
-                vendor: "Vendor Name",
-                tag: "Seafood",
-                price: "₱ 120.00/1kg",
-                image: TunaImage,
-                vendorAvatar: LegazpiCityPublicMarketImage,
-            },
-            {
-                id: "pork-belly",
-                name: "Pork Belly",
-                vendor: "Vendor Name",
-                tag: "Meat",
-                price: "₱ 200.00/1kg",
-                image: MeatImage,
-                vendorAvatar: LegazpiCityPublicMarketImage,
-            },
-            {
-                id: "chicken",
-                name: "Chicken Breast",
-                vendor: "Vendor Name",
-                tag: "Poultry",
-                price: "₱ 160.00/1kg",
-                image: ChickenImage,
-                vendorAvatar: LegazpiCityPublicMarketImage,
             },
         ],
         [],

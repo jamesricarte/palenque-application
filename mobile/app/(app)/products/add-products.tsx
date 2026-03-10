@@ -6,6 +6,7 @@ import {
   Pressable,
   TextInput,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -22,6 +23,7 @@ const AddProductScreen = () => {
     selectedImage,
     categoryOptions,
     unitOptions,
+    isSaving,
     handleBack,
     setProductName,
     setPrice,
@@ -124,11 +126,16 @@ const AddProductScreen = () => {
         {/* Save Button */}
         <Pressable
           onPress={handleSaveProduct}
-          className="py-4 rounded-md bg-primary-500"
+          disabled={isSaving}
+          className={`py-4 rounded-md ${isSaving ? "bg-primary-300" : "bg-primary-500"}`}
         >
-          <Text className="text-lg font-semibold text-center text-white">
-            Save Product
-          </Text>
+          {isSaving ? (
+            <ActivityIndicator color="#ffffff" />
+          ) : (
+            <Text className="text-lg font-semibold text-center text-white">
+              Save Product
+            </Text>
+          )}
         </Pressable>
       </ScrollView>
     </SafeAreaView>

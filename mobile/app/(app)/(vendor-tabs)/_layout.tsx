@@ -1,9 +1,55 @@
-import React from "react";
-import { Tabs } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Redirect, router, Tabs } from "expo-router";
 
 import { Ionicons } from "@expo/vector-icons";
+import { supabase } from "@/src/config/supabaseClient";
+import { useAuth } from "@/src/hooks/useAuth";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ActivityIndicator } from "react-native";
 
 const VendorTabsLayout = () => {
+  const { session, vendorData, setVendorData } = useAuth();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchVendorData = async () => {
+      const userId = session?.user.id;
+
+      try {
+        if (!userId) throw new Error("User id is required.");
+
+        const { data, error } = await supabase
+          .from("vendors")
+          .select("id, description, vendor_status")
+          .eq("user_id", userId)
+          .maybeSingle();
+
+        if (error) throw new Error(error.message);
+
+        if (!data) throw new Error("User doesnt have vendor data");
+
+        setVendorData(data);
+      } catch (error) {
+        console.error(error);
+        setVendorData(null);
+        router.back();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVendorData();
+  }, []);
+
+  if (loading)
+    return (
+      <SafeAreaView className="items-center justify-center flex-1">
+        <ActivityIndicator size="large" color="black" />
+      </SafeAreaView>
+    );
+
+  if (!vendorData) return null;
+
   return (
     <Tabs
       screenOptions={{

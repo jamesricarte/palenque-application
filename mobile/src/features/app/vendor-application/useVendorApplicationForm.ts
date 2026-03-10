@@ -83,19 +83,15 @@ export const useVendorApplicationForm = () => {
             Alert.alert(
                 "Application Submitted",
                 "Your vendor application has been submitted successfully.",
-                [{
-                    text: "Ok",
-                    onPress: () =>
-                        router.push(
-                            "/(app)/vendor-application/vendor-application-success",
-                        ),
-                }],
             );
 
-            setForm({
-                location: "",
-                description: "",
-            });
+            router.push(
+                "/(app)/vendor-application/vendor-application-success",
+            ),
+                setForm({
+                    location: "",
+                    description: "",
+                });
         } catch (error: any) {
             setError(error?.message || error);
             console.error(error);
