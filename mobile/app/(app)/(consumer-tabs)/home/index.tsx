@@ -11,6 +11,7 @@ import { StatusBar } from "expo-status-bar";
 import { useHome } from "@/src/features/app/consumer-tabs/home/useHome";
 
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 const HomeScreen = () => {
   const { search, setSearch, categories, nearbyMarkets, popularItems } =
@@ -36,7 +37,7 @@ const HomeScreen = () => {
             </Pressable>
 
             <Pressable
-              onPress={() => {}}
+              onPress={() => router.push("/(app)/cart")}
               className="items-center justify-center w-10 h-10"
               hitSlop={10}
             >
@@ -159,7 +160,7 @@ const HomeScreen = () => {
                 {popularItems.map((item) => (
                   <Pressable
                     key={item.id}
-                    onPress={() => {}}
+                    onPress={() => router.push(`/products/${item.id}`)}
                     className="bg-white border rounded-lg border-white-600"
                     style={{ width: 190 }}
                   >

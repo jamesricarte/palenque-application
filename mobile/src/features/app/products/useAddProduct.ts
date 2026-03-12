@@ -182,7 +182,7 @@ export const useAddProduct = () => {
                 .insert({
                     vendor_id: vendorId,
                     name: productName.trim(),
-                    categories: category,
+                    category: category,
                     price: numericPrice,
                     unit,
                     image_path: imagePath,

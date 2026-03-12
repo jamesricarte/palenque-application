@@ -36,7 +36,7 @@ export const useHome = () => {
                         .select(`
                         id,
                         name,
-                        categories,
+                        category,
                         price,
                         unit,
                         image_path,
@@ -65,7 +65,7 @@ export const useHome = () => {
                                     id: String(product.id),
                                     name: product.name,
                                     vendor: vendorName,
-                                    tag: product.categories,
+                                    tag: product.category,
                                     price: `₱ ${product.price}/${product.unit}`,
                                     image: product.image_path
                                         ? { uri: imageData.publicUrl }

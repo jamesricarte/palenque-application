@@ -49,7 +49,7 @@ export const useProfile = () => {
     );
 
     const onPressCart = () => {
-        // Navigate to cart later
+        router.push("/(app)/cart");
     };
 
     const onPressViewProfile = () => {

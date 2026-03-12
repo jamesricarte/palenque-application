@@ -32,28 +32,24 @@ const MyProductsScreen = () => {
       >
         <Image
           source={{ uri: product.image }}
-          className="w-full h-[96px]"
+          className="w-full h-[100px]"
           resizeMode="cover"
         />
 
         <View className="px-3 py-3">
-          <Text className="text-[15px] font-medium">{product.name}</Text>
+          <Text className="text-xl">{product.name}</Text>
 
           <View className="self-start px-1.5 py-0.5 mt-1 rounded bg-green-700">
             <Text className="text-[9px] text-white">{product.category}</Text>
           </View>
 
-          <View className="flex-row items-end justify-between mt-3">
-            <Text className="text-2xl font-normal text-primary-500">
-              {product.price}
-            </Text>
+          <View className="flex-row items-end justify-between">
+            <Text className="text-xl text-primary-500">{product.price}</Text>
 
-            <View className="items-end">
-              <Text className="mb-1 text-[10px] text-white-700">
-                Availability
-              </Text>
+            <View className="items-end ">
+              <Text className="text-xs text-white-700">Availability</Text>
 
-              <View className="scale-75">
+              <View className="justify-center w-10 h-6">
                 <Switch
                   value={product.available}
                   onValueChange={() => toggleAvailability(product.id)}
@@ -80,7 +76,7 @@ const MyProductsScreen = () => {
         </Text>
 
         <Pressable
-          onPress={() => {}}
+          onPress={() => router.push("/(app)/orders/orders")}
           className="items-center justify-center w-10 h-10"
           hitSlop={10}
         >
@@ -90,7 +86,7 @@ const MyProductsScreen = () => {
 
       <View className="flex-1">
         {/* Filters */}
-        <View className="flex-row gap-2 px-5 pt-3">
+        <View className="flex-row gap-2 px-5 py-4 border-b border-white-600">
           {categories.map((category) => {
             const isActive = selectedCategory === category.id;
 
@@ -101,7 +97,7 @@ const MyProductsScreen = () => {
                 className={`px-5 py-2 rounded-md border ${
                   isActive
                     ? "bg-primary-500 border-primary-500"
-                    : "bg-white border-white-700"
+                    : "bg-white border-brandBlack-50"
                 }`}
               >
                 <Text

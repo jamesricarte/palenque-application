@@ -43,13 +43,13 @@ export const useProducts = () => {
                                     .from("products")
                                     .getPublicUrl(product.image_path);
 
-                                const categoryKey = product.categories
+                                const categoryKey = product.category
                                     .toLowerCase();
 
                                 return {
                                     id: String(product.id),
                                     name: product.name,
-                                    category: product.categories,
+                                    category: product.category,
                                     categoryKey: categoryKey,
                                     price: `₱ ${product.price}/${product.unit}`,
                                     image: imageData.publicUrl,

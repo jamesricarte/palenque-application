@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { router } from "expo-router";
+import VendorApplicationImage from "@/src/assets/VendorApplication.jpg";
 
 import { useAuth } from "@/src/hooks/useAuth";
 import { supabase } from "@/src/config/supabaseClient";
@@ -40,9 +41,7 @@ export const useVendorApplication = () => {
     }, [session?.user?.id]);
 
     const heroImageSource = useMemo(() => {
-        return {
-            uri: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80",
-        } as const;
+        return VendorApplicationImage;
     }, []);
 
     const handleBack = () => {

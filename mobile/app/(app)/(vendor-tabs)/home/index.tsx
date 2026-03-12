@@ -3,6 +3,7 @@ import { View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 const HomeScreen = () => {
   return (
@@ -19,7 +20,7 @@ const HomeScreen = () => {
         </Pressable>
 
         <Pressable
-          onPress={() => {}}
+          onPress={() => router.push("/(app)/orders/orders")}
           className="items-center justify-center w-10 h-10"
           hitSlop={10}
         >
