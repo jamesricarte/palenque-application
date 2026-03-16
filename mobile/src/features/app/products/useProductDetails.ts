@@ -1,5 +1,6 @@
 import { supabase } from "@/src/config/supabaseClient";
 import { useAuth } from "@/src/hooks/useAuth";
+import { getInitials } from "@/src/utils/getInitials";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert } from "react-native";
@@ -12,12 +13,15 @@ type ProductDetails = {
     priceValue: number;
     unit: string;
     image: string;
+    vendorId: string | null;
     vendorName: string;
+    vendorImage: string | null;
+    vendorInitials: string;
 };
 
 type ModalAction = "cart" | "buy" | null;
 
-export const useProductDetails = () => {
+export const useProductDetails = (fetchCartCount: () => void) => {
     const { productId } = useLocalSearchParams<{ productId: string }>();
     const { session } = useAuth();
 
@@ -50,13 +54,21 @@ export const useProductDetails = () => {
 
             const { data: vendorData, error: vendorError } = await supabase
                 .from("vendors")
-                .select("user_id")
+                .select("id, user_id")
                 .eq("id", productData.vendor_id)
                 .maybeSingle();
 
             if (vendorError) throw new Error(vendorError.message);
 
-            let vendorName = "Unknown Vendor";
+            let vendorInfo: {
+                id: string | null;
+                firstName: string;
+                lastName: string;
+            } = {
+                id: vendorData?.id || null,
+                firstName: "Unknown",
+                lastName: "Vendor",
+            };
 
             if (vendorData?.user_id) {
                 const { data: userData, error: userError } = await supabase
@@ -68,9 +80,11 @@ export const useProductDetails = () => {
                 if (userError) throw new Error(userError.message);
 
                 if (userData?.first_name || userData?.last_name) {
-                    vendorName = `${userData?.first_name || ""} ${
-                        userData?.last_name || ""
-                    }`;
+                    vendorInfo = {
+                        id: vendorData.id || null,
+                        firstName: userData.first_name,
+                        lastName: userData.last_name,
+                    };
                 }
             }
 
@@ -86,7 +100,13 @@ export const useProductDetails = () => {
                 priceValue: Number(productData.price),
                 unit: productData.unit,
                 image: imageData.publicUrl,
-                vendorName,
+                vendorId: vendorInfo.id,
+                vendorName: `${vendorInfo.firstName} ${vendorInfo.lastName}`,
+                vendorImage: null,
+                vendorInitials: getInitials(
+                    vendorInfo.firstName,
+                    vendorInfo.lastName,
+                ),
             });
         } catch (error) {
             console.error("Error fetching product details:", error);
@@ -210,6 +230,7 @@ export const useProductDetails = () => {
                 }
             }
 
+            fetchCartCount();
             closeQuantityModal();
             Alert.alert("Success", "Product added to cart.");
         } catch (error) {
@@ -222,6 +243,32 @@ export const useProductDetails = () => {
 
     const handleConfirmQuantityAction = useCallback(async () => {
         if (modalAction === "buy") {
+            if (!product) return;
+
+            const checkoutItem = [
+                {
+                    productId: product.id,
+                    vendorId: product.vendorId,
+                    vendorName: product.vendorName,
+                    vendorImage: null,
+                    vendorInitials: product.vendorInitials,
+                    productName: product.name,
+                    quantity,
+                    unitPrice: product.priceValue,
+                    subtotal: product.priceValue * quantity,
+                    image: product.image,
+                },
+            ];
+
+            closeQuantityModal();
+
+            router.push({
+                pathname: "/(app)/checkout",
+                params: {
+                    selectedItems: JSON.stringify(checkoutItem),
+                },
+            });
+
             return;
         }
 

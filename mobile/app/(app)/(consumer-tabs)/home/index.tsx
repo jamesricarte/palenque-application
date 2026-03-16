@@ -12,10 +12,13 @@ import { useHome } from "@/src/features/app/consumer-tabs/home/useHome";
 
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useCartCount } from "@/src/hooks/useCartCount";
 
 const HomeScreen = () => {
   const { search, setSearch, categories, nearbyMarkets, popularItems } =
     useHome();
+
+  const { cartCount } = useCartCount();
 
   return (
     <View className="flex-1 bg-white">
@@ -38,10 +41,18 @@ const HomeScreen = () => {
 
             <Pressable
               onPress={() => router.push("/(app)/cart")}
-              className="items-center justify-center w-10 h-10"
+              className="relative items-center justify-center w-10 h-10"
               hitSlop={10}
             >
               <Ionicons name="bag-outline" size={26} color="#1f2933" />
+
+              {cartCount > 0 && (
+                <View className="absolute items-center justify-center min-w-[20px] h-5 px-1 rounded-full -top-1 -right-1 bg-primary-500">
+                  <Text className="text-[11px] font-semibold text-white">
+                    {cartCount > 99 ? "99+" : cartCount}
+                  </Text>
+                </View>
+              )}
             </Pressable>
           </View>
 

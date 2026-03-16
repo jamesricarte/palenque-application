@@ -12,9 +12,12 @@ import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 
 import { useProductDetails } from "@/src/features/app/products/useProductDetails";
+import { useCartCount } from "@/src/hooks/useCartCount";
 import { router } from "expo-router";
 
 const ProductDetailsScreen = () => {
+  const { cartCount, fetchCartCount } = useCartCount();
+
   const {
     product,
     loading,
@@ -29,7 +32,7 @@ const ProductDetailsScreen = () => {
     decreaseQuantity,
     handleConfirmQuantityAction,
     isConfirming,
-  } = useProductDetails();
+  } = useProductDetails(fetchCartCount);
 
   if (loading) {
     return (
@@ -88,10 +91,18 @@ const ProductDetailsScreen = () => {
 
         <Pressable
           onPress={() => router.push("/(app)/cart")}
-          className="items-center justify-center w-10 h-10"
+          className="relative items-center justify-center w-10 h-10"
           hitSlop={10}
         >
           <Ionicons name="bag-outline" size={26} color="#1f2933" />
+
+          {cartCount > 0 && (
+            <View className="absolute items-center justify-center min-w-[20px] h-5 px-1 rounded-full -top-1 -right-1 bg-primary-500">
+              <Text className="text-[11px] font-semibold text-white">
+                {cartCount > 99 ? "99+" : cartCount}
+              </Text>
+            </View>
+          )}
         </Pressable>
       </View>
 
@@ -122,7 +133,25 @@ const ProductDetailsScreen = () => {
               Vendor Information
             </Text>
 
-            <Text className="text-lg text-black-400">{product.vendorName}</Text>
+            <View className="flex-row gap-2">
+              {product.vendorImage ? (
+                <Image
+                  source={{ uri: product.vendorImage }}
+                  className="w-8 h-8 rounded-full"
+                  resizeMode="cover"
+                />
+              ) : (
+                <View className="items-center justify-center w-8 h-8 rounded-full bg-brandBlack-50">
+                  <Text className="text-[12px] font-semibold text-black-500">
+                    {product.vendorInitials}
+                  </Text>
+                </View>
+              )}
+
+              <Text className="text-lg text-black-400">
+                {product.vendorName}
+              </Text>
+            </View>
           </View>
         </View>
 

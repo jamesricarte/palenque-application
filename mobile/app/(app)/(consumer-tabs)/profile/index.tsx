@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { useProfile } from "@/src/features/app/consumer-tabs/profile/useProfile";
 
 import { Ionicons } from "@expo/vector-icons";
+import { useCartCount } from "@/src/hooks/useCartCount";
 
 const ProfileScreen = () => {
   const {
@@ -16,6 +17,8 @@ const ProfileScreen = () => {
     onPressVendorDashboard,
     onPressLogout,
   } = useProfile();
+
+  const { cartCount } = useCartCount();
 
   return (
     <View className="flex-1 bg-white">
@@ -32,11 +35,19 @@ const ProfileScreen = () => {
             <Text className="text-2xl font-semibold">My Account</Text>
 
             <Pressable
-              onPress={onPressCart}
-              className="items-center justify-center w-10 h-10"
+              onPress={() => onPressCart}
+              className="relative items-center justify-center w-10 h-10"
               hitSlop={10}
             >
               <Ionicons name="bag-outline" size={26} color="#1f2933" />
+
+              {cartCount > 0 && (
+                <View className="absolute items-center justify-center min-w-[20px] h-5 px-1 rounded-full -top-1 -right-1 bg-primary-500">
+                  <Text className="text-[11px] font-semibold text-white">
+                    {cartCount > 99 ? "99+" : cartCount}
+                  </Text>
+                </View>
+              )}
             </Pressable>
           </View>
 

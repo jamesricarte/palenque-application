@@ -3,6 +3,7 @@ import { useAuth } from "@/src/hooks/useAuth";
 import { router, useFocusEffect } from "expo-router";
 import { Alert } from "react-native";
 import { useCallback, useMemo, useState } from "react";
+import { getInitials } from "@/src/utils/getInitials";
 
 type CartItem = {
     id: string;
@@ -31,11 +32,10 @@ type CartGroup = {
     items: CartItem[];
 };
 
-const getInitials = (firstName: string, lastName: string) => {
-    const firstInitial = firstName?.charAt(0) ?? "";
-    const lastInitial = lastName?.charAt(0) ?? "";
+const getSingleRelation = <T>(value: T | T[] | null | undefined): T | null => {
+    if (!value) return null;
 
-    return `${firstInitial}${lastInitial}`.toUpperCase() || "V";
+    return Array.isArray(value) ? value[0] ?? null : value;
 };
 
 export const useCart = () => {
@@ -44,14 +44,7 @@ export const useCart = () => {
     const [loading, setLoading] = useState(true);
     const [cartGroups, setCartGroups] = useState<CartGroup[]>([]);
 
-    const handleBack = useCallback(() => {
-        router.back();
-    }, []);
-
-    const handleBrowseProducts = useCallback(() => {
-        router.back();
-    }, []);
-
+    // FETCH CART DATA
     const fetchCart = useCallback(async () => {
         const userId = session?.user.id;
 
@@ -59,12 +52,12 @@ export const useCart = () => {
             setLoading(true);
 
             if (!userId) {
-                throw new Error("You must be logged in to add to cart.");
+                throw new Error("You must be logged in to see your cart.");
             }
 
             const { data: cartData, error: cartError } = await supabase
                 .from("carts")
-                .select("id, status")
+                .select("id")
                 .eq("user_id", userId)
                 .order("id", { ascending: false })
                 .limit(1)
@@ -91,7 +84,15 @@ export const useCart = () => {
                             category,
                             unit,
                             image_path,
-                            vendor_id
+                            vendor_id,
+                            vendors (
+                                id,
+                                user_id,
+                                users (
+                                    first_name,
+                                    last_name
+                                )
+                            )
                         )
                     `)
                     .eq("cart_id", cartData.id)
@@ -104,73 +105,26 @@ export const useCart = () => {
                 return;
             }
 
-            const validCartItems = cartItemsData.filter(
-                (item) => item.products && !Array.isArray(item.products),
-            );
-
-            if (validCartItems.length === 0) {
-                setCartGroups([]);
-                return;
-            }
-
-            const vendorIds = [
-                ...new Set(
-                    validCartItems.map((item: any) =>
-                        String(item.products.vendor_id)
-                    ),
-                ),
-            ];
-
-            const { data: vendorsData, error: vendorsError } = await supabase
-                .from("vendors")
-                .select("id, user_id")
-                .in("id", vendorIds);
-
-            if (vendorsError) throw new Error(vendorsError.message);
-
-            const vendorUserIds = [
-                ...new Set(
-                    (vendorsData ?? [])
-                        .map((vendor) => vendor.user_id)
-                        .filter(Boolean),
-                ),
-            ];
-
-            const { data: usersData, error: usersError } = await supabase
-                .from("users")
-                .select("user_id, first_name, last_name")
-                .in("user_id", vendorUserIds);
-
-            if (usersError) throw new Error(usersError.message);
-
-            const vendorUserMap = new Map(
-                (vendorsData ?? []).map((
-                    vendor,
-                ) => [String(vendor.id), vendor.user_id]),
-            );
-
-            const userMap = new Map(
-                (usersData ?? []).map((user) => [user.user_id, user]),
-            );
-
-            const groupedCart = validCartItems.reduce<
-                Record<string, CartGroup>
-            >(
+            const groupedCart = cartItemsData.reduce<Record<string, CartGroup>>(
                 (acc, item: any) => {
-                    const product = item.products;
-                    const vendorId = String(product.vendor_id);
-                    const vendorUserId = vendorUserMap.get(vendorId);
-                    const vendorUser = vendorUserId
-                        ? userMap.get(vendorUserId)
-                        : null;
+                    const product = getSingleRelation(item.products);
 
+                    if (!product) return acc;
+
+                    const vendor = getSingleRelation(product.vendors);
+                    const vendorUser = getSingleRelation(vendor?.users);
+
+                    const vendorId = String(product.vendor_id);
                     const firstName = vendorUser?.first_name ?? "Unknown";
                     const lastName = vendorUser?.last_name ?? "Vendor";
                     const vendorName = `${firstName} ${lastName}`.trim();
 
-                    const { data: imageData } = supabase.storage
-                        .from("products")
-                        .getPublicUrl(product.image_path);
+                    const imagePath = product.image_path ?? "";
+                    const productImageUrl = imagePath
+                        ? supabase.storage.from("products").getPublicUrl(
+                            imagePath,
+                        ).data.publicUrl
+                        : "";
 
                     const quantity = Number(item.quantity);
                     const unitPrice = Number(item.unit_price);
@@ -192,7 +146,7 @@ export const useCart = () => {
 
                     acc[vendorId].items.push({
                         id: String(item.id),
-                        productId: String(product.id),
+                        productId: String(product.id ?? item.product_id),
                         name: product.name,
                         category: product.category,
                         quantity,
@@ -200,7 +154,7 @@ export const useCart = () => {
                         priceValue: unitPrice,
                         subtotal: `₱ ${subtotalValue.toFixed(2)}`,
                         subtotalValue,
-                        image: imageData.publicUrl,
+                        image: productImageUrl,
                         unitLabel: `Per ${product.unit}`,
                         isSelected: false,
                     });
@@ -469,6 +423,8 @@ export const useCart = () => {
                     productId: item.productId,
                     vendorId: group.vendorId,
                     vendorName: group.vendorName,
+                    vendorImage: null,
+                    vendorInitials: group.vendorInitials,
                     productName: item.name,
                     quantity: item.quantity,
                     unitPrice: item.priceValue,
@@ -487,17 +443,40 @@ export const useCart = () => {
             return;
         }
 
-        prettyLog(
-            "Routing to checkout screen with params of:",
-            selectedCheckoutItems,
-        );
-        // router.push({
-        //     pathname: "/checkout",
-        //     params: {
-        //         selectedItems: JSON.stringify(selectedCheckoutItems),
-        //     },
-        // });
+        router.push({
+            pathname: "/checkout",
+            params: {
+                selectedItems: JSON.stringify(selectedCheckoutItems),
+            },
+        });
     }, [selectedCheckoutItems]);
+
+    const handleBack = useCallback(() => {
+        router.back();
+    }, []);
+
+    const handleBrowseProducts = useCallback(() => {
+        router.back();
+    }, []);
+
+    const handleDeleteCartItem = useCallback(
+        (vendorId: string, itemId: string, itemName: string) => {
+            Alert.alert(
+                "Confirm Delete",
+                `Are you sure you want to delete item ${itemName}?`,
+                [
+                    { text: "Cancel" },
+                    {
+                        text: "Ok",
+                        onPress: () => {
+                            deleteCartItem(vendorId, itemId);
+                        },
+                    },
+                ],
+            );
+        },
+        [],
+    );
 
     return {
         loading,
@@ -510,7 +489,7 @@ export const useCart = () => {
         toggleItemSelection,
         decreaseQuantity,
         increaseQuantity,
-        deleteCartItem,
+        handleDeleteCartItem,
         handleProceedToCheckout,
     };
 };

@@ -25,7 +25,7 @@ const CartScreen = () => {
     toggleItemSelection,
     decreaseQuantity,
     increaseQuantity,
-    deleteCartItem,
+    handleDeleteCartItem,
     handleProceedToCheckout,
   } = useCart();
 
@@ -48,7 +48,7 @@ const CartScreen = () => {
           <Ionicons name="arrow-back" size={24} color="#111111" />
         </Pressable>
 
-        <Text className="text-[22px] font-semibold">My Cart ({cartCount})</Text>
+        <Text className="text-[22px] font-medium">My Cart ({cartCount})</Text>
       </View>
 
       {cartGroups.length === 0 ? (
@@ -94,7 +94,7 @@ const CartScreen = () => {
                       className={`items-center justify-center w-5 h-5 mr-3 border rounded-sm ${
                         group.isAllSelected
                           ? "bg-primary-500 border-primary-500"
-                          : "bg-white border-white-700"
+                          : "bg-white border-white-600"
                       }`}
                     >
                       {group.isAllSelected ? (
@@ -141,7 +141,7 @@ const CartScreen = () => {
                           className={`items-center justify-center w-5 h-5 mt-4 mr-3 border rounded-sm ${
                             item.isSelected
                               ? "bg-primary-500 border-primary-500"
-                              : "bg-white border-white-700"
+                              : "bg-white border-white-600"
                           }`}
                         >
                           {item.isSelected ? (
@@ -155,29 +155,23 @@ const CartScreen = () => {
 
                         <Image
                           source={{ uri: item.image }}
-                          className="w-[60px] h-[60px] rounded-md"
+                          className="w-[70px] h-[70px] rounded-md"
                           resizeMode="cover"
                         />
 
                         <View className="flex-1 ml-3">
-                          <View className="flex-row items-start justify-between">
-                            <View className="flex-1 pr-3">
-                              <Text className="text-[18px] font-medium text-black-500">
-                                {item.name}
-                              </Text>
-
-                              <Text className="text-[14px] text-white-700">
-                                {item.unitLabel}
-                              </Text>
-
-                              <Text className="mt-1 text-[18px] text-primary-500">
-                                {item.price}
-                              </Text>
-                            </View>
+                          <View className="flex-row justify-between">
+                            <Text className="text-xl text-black-500">
+                              {item.name}
+                            </Text>
 
                             <Pressable
                               onPress={() =>
-                                deleteCartItem(group.vendorId, item.id)
+                                handleDeleteCartItem(
+                                  group.vendorId,
+                                  item.id,
+                                  item.name,
+                                )
                               }
                               hitSlop={10}
                             >
@@ -189,28 +183,42 @@ const CartScreen = () => {
                             </Pressable>
                           </View>
 
-                          <View className="flex-row items-center justify-end mt-2">
-                            <Pressable
-                              onPress={() => decreaseQuantity(item.id)}
-                              className="items-center justify-center w-5 h-5 rounded-full bg-brandBlack-50"
-                            >
-                              <Ionicons
-                                name="remove"
-                                size={12}
-                                color="#9CA3AF"
-                              />
-                            </Pressable>
+                          <Text className="text-[14px] text-white-700">
+                            {item.unitLabel}
+                          </Text>
 
-                            <Text className="mx-4 text-[18px] text-black-500">
-                              {item.quantity}
+                          <View className="flex-row justify-between">
+                            <Text className="mt-1 text-[18px] text-primary-500">
+                              {item.price}
                             </Text>
 
-                            <Pressable
-                              onPress={() => increaseQuantity(item.id)}
-                              className="items-center justify-center w-5 h-5 rounded-full bg-brandBlack-50"
-                            >
-                              <Ionicons name="add" size={12} color="#D1D5DB" />
-                            </Pressable>
+                            <View className="flex-row items-center">
+                              <Pressable
+                                onPress={() => decreaseQuantity(item.id)}
+                                className="items-center justify-center w-6 h-6 rounded-full bg-brandBlack-50"
+                              >
+                                <Ionicons
+                                  name="remove"
+                                  size={13}
+                                  color="#B5B5B5"
+                                />
+                              </Pressable>
+
+                              <Text className="mx-4 text-[18px] text-black-500">
+                                {item.quantity}
+                              </Text>
+
+                              <Pressable
+                                onPress={() => increaseQuantity(item.id)}
+                                className="items-center justify-center w-6 h-6 rounded-full bg-brandBlack-50"
+                              >
+                                <Ionicons
+                                  name="add"
+                                  size={13}
+                                  color="#B5B5B5"
+                                />
+                              </Pressable>
+                            </View>
                           </View>
                         </View>
                       </View>
