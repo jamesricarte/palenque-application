@@ -126,11 +126,21 @@ const HomeScreen = () => {
                   >
                     {/* Image */}
                     <View className="overflow-hidden rounded-t-lg h-28">
-                      <Image
-                        source={m.image}
-                        className="w-full h-full"
-                        resizeMode="cover"
-                      />
+                      {m.image?.uri ? (
+                        <Image
+                          source={m.image}
+                          className="w-full h-full"
+                          resizeMode="cover"
+                        />
+                      ) : (
+                        <View className="items-center justify-center w-full h-full bg-white-600">
+                          <Ionicons
+                            name="image-outline"
+                            size={32}
+                            color="#9ca3af"
+                          />
+                        </View>
+                      )}
                     </View>
 
                     {/* Info */}

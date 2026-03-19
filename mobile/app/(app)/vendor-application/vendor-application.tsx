@@ -97,10 +97,10 @@ const VendorApplicationScreen = () => {
               <View className="px-4 py-4">
                 <View className="mb-4">
                   <Text className="mb-1 text-base font-semibold">
-                    Stall / Store Location
+                    Market Location
                   </Text>
                   <Text className="text-base text-white-700">
-                    {existingApplication.location || "Not provided"}
+                    {existingApplication.market_name || "Not provided"}
                   </Text>
                 </View>
 

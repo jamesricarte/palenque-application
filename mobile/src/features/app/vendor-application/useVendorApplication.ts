@@ -5,59 +5,88 @@ import VendorApplicationImage from "@/src/assets/VendorApplication.jpg";
 import { useAuth } from "@/src/hooks/useAuth";
 import { supabase } from "@/src/config/supabaseClient";
 
+type ExistingApplication = {
+  id: number;
+  market_id: number | null;
+  description: string | null;
+  status: string;
+  market_name: string | null;
+};
+
 export const useVendorApplication = () => {
-    const { session } = useAuth();
+  const { session } = useAuth();
 
-    const [existingApplication, setExistingApplication] = useState<any | null>(
-        null,
-    );
-    const [loading, setLoading] = useState(true);
+  const [existingApplication, setExistingApplication] =
+    useState<ExistingApplication | null>(null);
+  const [loading, setLoading] = useState(true);
 
-    const checkExistingApplication = async () => {
-        try {
-            const userId = session?.user?.id || null;
+  const checkExistingApplication = async () => {
+    try {
+      const userId = session?.user?.id || null;
 
-            if (!userId) throw new Error("User session id is required.");
+      if (!userId) throw new Error("User session id is required.");
 
-            const { data, error } = await supabase
-                .from("vendor_applications")
-                .select()
-                .eq("user_id", userId)
-                .maybeSingle();
+      const { data, error } = await supabase
+        .from("vendor_applications")
+        .select("id, market_id, description, status")
+        .eq("user_id", userId)
+        .maybeSingle();
 
-            if (error) throw new Error(error.message);
+      if (error) throw new Error(error.message);
 
-            setExistingApplication(data ?? null);
-        } catch (error) {
-            console.error(error);
-            setExistingApplication(null);
-        } finally {
-            setLoading(false);
-        }
-    };
+      if (!data) {
+        setExistingApplication(null);
+        return;
+      }
 
-    useEffect(() => {
-        checkExistingApplication();
-    }, [session?.user?.id]);
+      let marketName: string | null = null;
 
-    const heroImageSource = useMemo(() => {
-        return VendorApplicationImage;
-    }, []);
+      if (data.market_id) {
+        const { data: market, error: marketError } = await supabase
+          .from("markets")
+          .select("name")
+          .eq("id", data.market_id)
+          .maybeSingle();
 
-    const handleBack = () => {
-        if (router.canGoBack()) router.back();
-        else router.replace("/(app)/(consumer-tabs)/profile");
-    };
+        if (marketError) throw new Error(marketError.message);
 
-    const handleStartApplication = () => {
-        router.push("/(app)/vendor-application/vendor-application-form");
-    };
+        marketName = market?.name ?? null;
+      }
 
-    return {
-        heroImageSource,
-        handleBack,
-        handleStartApplication,
-        existingApplication,
-        loading,
-    };
+      setExistingApplication({
+        ...data,
+        market_name: marketName,
+      });
+    } catch (error) {
+      console.error(error);
+      setExistingApplication(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    checkExistingApplication();
+  }, [session?.user?.id]);
+
+  const heroImageSource = useMemo(() => {
+    return VendorApplicationImage;
+  }, []);
+
+  const handleBack = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(app)/(consumer-tabs)/profile");
+  };
+
+  const handleStartApplication = () => {
+    router.push("/(app)/vendor-application/vendor-application-form");
+  };
+
+  return {
+    heroImageSource,
+    handleBack,
+    handleStartApplication,
+    existingApplication,
+    loading,
+  };
 };

@@ -13,7 +13,7 @@ export const useProfile = () => {
         useState(false);
 
     const userName = useMemo(() => {
-        return `${user?.first_name} ${user?.last_name}`;
+        return `${user?.first_name || ""} ${user?.last_name || ""}`;
     }, [user]);
 
     useFocusEffect(
