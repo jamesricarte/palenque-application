@@ -16,6 +16,7 @@ type vendorDataType = {
   id: string;
   description: string;
   vendor_status: string;
+  market_id: number;
 };
 
 type AuthContextType = {

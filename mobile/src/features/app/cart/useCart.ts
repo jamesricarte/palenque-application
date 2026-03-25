@@ -2,7 +2,7 @@ import { supabase } from "@/src/config/supabaseClient";
 import { useAuth } from "@/src/hooks/useAuth";
 import { router, useFocusEffect } from "expo-router";
 import { Alert } from "react-native";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getInitials } from "@/src/utils/getInitials";
 
 type CartItem = {
@@ -11,6 +11,7 @@ type CartItem = {
     name: string;
     category: string;
     quantity: number;
+    stock: number;
     price: string;
     priceValue: number;
     subtotal: string;
@@ -43,14 +44,14 @@ export const useCart = () => {
 
     const [loading, setLoading] = useState(true);
     const [cartGroups, setCartGroups] = useState<CartGroup[]>([]);
+    const [isProceedingToCheckout, setIsProceedingToCheckout] = useState(false);
+    const selectedItemIds = useRef<Set<string>>(new Set());
 
     // FETCH CART DATA
     const fetchCart = useCallback(async () => {
         const userId = session?.user.id;
 
         try {
-            setLoading(true);
-
             if (!userId) {
                 throw new Error("You must be logged in to see your cart.");
             }
@@ -82,6 +83,7 @@ export const useCart = () => {
                             id,
                             name,
                             category,
+                            stock,
                             unit,
                             image_path,
                             vendor_id,
@@ -127,6 +129,7 @@ export const useCart = () => {
                         : "";
 
                     const quantity = Number(item.quantity);
+                    const stock = Number(product.stock ?? 0);
                     const unitPrice = Number(item.unit_price);
                     const subtotalValue = quantity * unitPrice;
 
@@ -150,13 +153,16 @@ export const useCart = () => {
                         name: product.name,
                         category: product.category,
                         quantity,
+                        stock,
                         price: `₱ ${unitPrice.toFixed(2)}`,
                         priceValue: unitPrice,
                         subtotal: `₱ ${subtotalValue.toFixed(2)}`,
                         subtotalValue,
                         image: productImageUrl,
                         unitLabel: `Per ${product.unit}`,
-                        isSelected: false,
+                        isSelected: selectedItemIds.current.has(
+                            String(item.id),
+                        ),
                     });
 
                     acc[vendorId].totalItems += 1;
@@ -170,7 +176,13 @@ export const useCart = () => {
                 {},
             );
 
-            setCartGroups(Object.values(groupedCart));
+            setCartGroups(
+                Object.values(groupedCart).map((group) => ({
+                    ...group,
+                    isAllSelected: group.items.length > 0 &&
+                        group.items.every((item) => item.isSelected),
+                })),
+            );
         } catch (error) {
             console.error("Error fetching cart:", error);
             setCartGroups([]);
@@ -179,11 +191,19 @@ export const useCart = () => {
         }
     }, [session?.user.id]);
 
-    useFocusEffect(
-        useCallback(() => {
-            fetchCart();
-        }, [fetchCart]),
-    );
+    useEffect(() => {
+        fetchCart();
+    }, [fetchCart]);
+
+    useEffect(() => {
+        selectedItemIds.current = new Set(
+            cartGroups.flatMap((group) =>
+                group.items
+                    .filter((item) => item.isSelected)
+                    .map((item) => item.id)
+            ),
+        );
+    }, [cartGroups]);
 
     const syncItemQuantity = useCallback(
         async (itemId: string, quantity: number) => {
@@ -258,8 +278,6 @@ export const useCart = () => {
         const nextQuantity = currentItem.quantity - 1;
 
         try {
-            await syncItemQuantity(itemId, nextQuantity);
-
             setCartGroups((prev) =>
                 prev.map((group) => {
                     const updatedItems = group.items.map((item) => {
@@ -289,6 +307,8 @@ export const useCart = () => {
                     };
                 })
             );
+
+            await syncItemQuantity(itemId, nextQuantity);
         } catch (error) {
             console.error("Error decreasing quantity:", error);
             Alert.alert("Error", "Failed to update quantity.");
@@ -305,8 +325,6 @@ export const useCart = () => {
         const nextQuantity = currentItem.quantity + 1;
 
         try {
-            await syncItemQuantity(itemId, nextQuantity);
-
             setCartGroups((prev) =>
                 prev.map((group) => {
                     const updatedItems = group.items.map((item) => {
@@ -336,6 +354,8 @@ export const useCart = () => {
                     };
                 })
             );
+
+            await syncItemQuantity(itemId, nextQuantity);
         } catch (error) {
             console.error("Error increasing quantity:", error);
             Alert.alert("Error", "Failed to update quantity.");
@@ -434,7 +454,7 @@ export const useCart = () => {
         );
     }, [cartGroups]);
 
-    const handleProceedToCheckout = useCallback(() => {
+    const handleProceedToCheckout = useCallback(async () => {
         if (selectedCheckoutItems.length === 0) {
             Alert.alert(
                 "No selected items",
@@ -443,13 +463,59 @@ export const useCart = () => {
             return;
         }
 
-        router.push({
-            pathname: "/checkout",
-            params: {
-                selectedItems: JSON.stringify(selectedCheckoutItems),
-            },
-        });
-    }, [selectedCheckoutItems]);
+        try {
+            setIsProceedingToCheckout(true);
+
+            const productIds = selectedCheckoutItems.map((item) =>
+                Number(item.productId)
+            );
+
+            const { data: latestProducts, error: latestProductsError } =
+                await supabase
+                    .from("products")
+                    .select("id, stock")
+                    .in("id", productIds);
+
+            if (latestProductsError) {
+                throw new Error(latestProductsError.message);
+            }
+
+            const latestStockByProductId = new Map(
+                (latestProducts ?? []).map((product) => [
+                    String(product.id),
+                    Number(product.stock ?? 0),
+                ]),
+            );
+
+            const hasInsufficientStock = selectedCheckoutItems.some((item) => {
+                const currentStock = latestStockByProductId.get(item.productId);
+
+                return currentStock === undefined ||
+                    item.quantity > currentStock;
+            });
+
+            if (hasInsufficientStock) {
+                Alert.alert(
+                    "Insufficient Stock",
+                    "One or more selected items no longer have enough stock for the quantity in your cart.",
+                );
+                await fetchCart();
+                return;
+            }
+
+            router.push({
+                pathname: "/checkout",
+                params: {
+                    selectedItems: JSON.stringify(selectedCheckoutItems),
+                },
+            });
+        } catch (error) {
+            console.error("Error proceeding to checkout:", error);
+            Alert.alert("Error", "Failed to proceed to checkout.");
+        } finally {
+            setIsProceedingToCheckout(false);
+        }
+    }, [fetchCart, selectedCheckoutItems]);
 
     const handleBack = useCallback(() => {
         router.back();
@@ -483,6 +549,7 @@ export const useCart = () => {
         cartGroups,
         cartCount,
         selectedSubtotal,
+        isProceedingToCheckout,
         handleBack,
         handleBrowseProducts,
         toggleVendorSelection,

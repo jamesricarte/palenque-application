@@ -35,7 +35,7 @@ const ProfileScreen = () => {
             <Text className="text-2xl font-semibold">My Account</Text>
 
             <Pressable
-              onPress={() => onPressCart}
+              onPress={onPressCart}
               className="relative items-center justify-center w-10 h-10"
               hitSlop={10}
             >

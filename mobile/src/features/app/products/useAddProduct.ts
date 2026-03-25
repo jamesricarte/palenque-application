@@ -186,6 +186,7 @@ export const useAddProduct = () => {
                     price: numericPrice,
                     unit,
                     image_path: imagePath,
+                    stock: 50,
                 });
 
             if (insertError) throw new Error(insertError.message);

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import MeatCategoryImage from "@/src/assets/Meat.png";
 import SeafoodCategoryImage from "@/src/assets/Seafood.png";
@@ -37,6 +37,12 @@ export const useHome = () => {
             image: { uri: string } | null;
         }[]
     >([]);
+
+    const [hasMarketsFetched, setHasMarketsFetched] = useState<boolean>(false);
+    const [hasProductsFetched, setHasProductsFetched] = useState<boolean>(
+        false,
+    );
+    const [loading, setLoading] = useState<boolean>(true);
 
     const formatDistance = (distanceInKm: number) => {
         if (distanceInKm < 1) {
@@ -115,6 +121,8 @@ export const useHome = () => {
                     }
                 } catch (error: any) {
                     console.error(error);
+                } finally {
+                    setHasProductsFetched(true);
                 }
             };
 
@@ -258,6 +266,8 @@ export const useHome = () => {
                     }
                 } catch (error: any) {
                     console.error(error);
+                } finally {
+                    setHasMarketsFetched(true);
                 }
             };
 
@@ -265,6 +275,10 @@ export const useHome = () => {
             fetchMarkets();
         }, [session?.user?.id]),
     );
+
+    useEffect(() => {
+        if (hasMarketsFetched && hasProductsFetched) setLoading(false);
+    }, [hasMarketsFetched, hasProductsFetched]);
 
     const categories = useMemo(
         () => [
@@ -287,5 +301,6 @@ export const useHome = () => {
         categories,
         nearbyMarkets,
         popularItems,
+        loading,
     };
 };

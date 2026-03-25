@@ -20,7 +20,7 @@ const VendorTabsLayout = () => {
 
         const { data, error } = await supabase
           .from("vendors")
-          .select("id, description, vendor_status")
+          .select("id, description, vendor_status, market_id")
           .eq("user_id", userId)
           .maybeSingle();
 
@@ -44,7 +44,7 @@ const VendorTabsLayout = () => {
   if (loading)
     return (
       <SafeAreaView className="items-center justify-center flex-1">
-        <ActivityIndicator size="large" color="black" />
+        <ActivityIndicator size="large" color="#f16b44" />
       </SafeAreaView>
     );
 

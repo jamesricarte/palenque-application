@@ -11,6 +11,7 @@ type ProductDetails = {
     category: string;
     price: string;
     priceValue: number;
+    stock: number;
     unit: string;
     image: string;
     vendorId: string | null;
@@ -98,6 +99,7 @@ export const useProductDetails = (fetchCartCount: () => void) => {
                 category: productData.category,
                 price: `₱ ${productData.price}/${productData.unit}`,
                 priceValue: Number(productData.price),
+                stock: Number(productData.stock ?? 0),
                 unit: productData.unit,
                 image: imageData.publicUrl,
                 vendorId: vendorInfo.id,
@@ -152,6 +154,27 @@ export const useProductDetails = (fetchCartCount: () => void) => {
         return `₱ ${(priceValue * quantity).toFixed(2)}`;
     }, [product, quantity]);
 
+    const getCurrentProductStock = useCallback(async () => {
+        if (!product) throw new Error("Product details are required.");
+
+        const { data: currentProduct, error: currentProductError } =
+            await supabase
+                .from("products")
+                .select("stock")
+                .eq("id", Number(product.id))
+                .maybeSingle();
+
+        if (currentProductError) {
+            throw new Error(currentProductError.message);
+        }
+
+        if (!currentProduct) {
+            throw new Error("Product does not exist.");
+        }
+
+        return Number(currentProduct.stock ?? 0);
+    }, [product]);
+
     const handleAddToCart = useCallback(async () => {
         const userId = session?.user.id;
 
@@ -203,11 +226,25 @@ export const useProductDetails = (fetchCartCount: () => void) => {
                 throw new Error(existingCartItemError.message);
             }
 
+            const currentStock = await getCurrentProductStock();
+            const existingQuantity = Number(existingCartItem?.quantity ?? 0);
+            const nextQuantity = existingQuantity + quantity;
+
+            if (nextQuantity > currentStock) {
+                Alert.alert(
+                    "Insufficient Stock",
+                    existingQuantity > 0
+                        ? `Only ${currentStock} item(s) are available. You already have ${existingQuantity} in your cart.`
+                        : `Only ${currentStock} item(s) are available right now.`,
+                );
+                return;
+            }
+
             if (existingCartItem) {
                 const { error: updateCartItemError } = await supabase
                     .from("cart_items")
                     .update({
-                        quantity: existingCartItem.quantity + quantity,
+                        quantity: nextQuantity,
                         unit_price: product.priceValue,
                     })
                     .eq("id", existingCartItem.id);
@@ -239,44 +276,70 @@ export const useProductDetails = (fetchCartCount: () => void) => {
         } finally {
             setIsConfirming(false);
         }
-    }, [closeQuantityModal, product, quantity]);
+    }, [closeQuantityModal, getCurrentProductStock, product, quantity, session?.user.id]);
 
     const handleConfirmQuantityAction = useCallback(async () => {
         if (modalAction === "buy") {
-            if (!product) return;
+            try {
+                setIsConfirming(true);
 
-            const checkoutItem = [
-                {
-                    productId: product.id,
-                    vendorId: product.vendorId,
-                    vendorName: product.vendorName,
-                    vendorImage: null,
-                    vendorInitials: product.vendorInitials,
-                    productName: product.name,
-                    quantity,
-                    unitPrice: product.priceValue,
-                    subtotal: product.priceValue * quantity,
-                    image: product.image,
-                },
-            ];
+                if (!product) return;
 
-            closeQuantityModal();
+                const currentStock = await getCurrentProductStock();
 
-            router.push({
-                pathname: "/(app)/checkout",
-                params: {
-                    selectedItems: JSON.stringify(checkoutItem),
-                },
-            });
+                if (quantity > currentStock) {
+                    Alert.alert(
+                        "Insufficient Stock",
+                        `Only ${currentStock} item(s) are available right now.`,
+                    );
+                    return;
+                }
 
-            return;
+                const checkoutItem = [
+                    {
+                        productId: product.id,
+                        vendorId: product.vendorId,
+                        vendorName: product.vendorName,
+                        vendorImage: null,
+                        vendorInitials: product.vendorInitials,
+                        productName: product.name,
+                        quantity,
+                        unitPrice: product.priceValue,
+                        subtotal: product.priceValue * quantity,
+                        image: product.image,
+                    },
+                ];
+
+                closeQuantityModal();
+
+                router.push({
+                    pathname: "/(app)/checkout",
+                    params: {
+                        selectedItems: JSON.stringify(checkoutItem),
+                    },
+                });
+
+                return;
+            } catch (error) {
+                console.error("Error preparing buy now checkout:", error);
+                Alert.alert("Error", "Failed to continue to checkout.");
+            } finally {
+                setIsConfirming(false);
+            }
         }
 
         if (modalAction === "cart") {
             await handleAddToCart();
             return;
         }
-    }, [closeQuantityModal, handleAddToCart, modalAction]);
+    }, [
+        closeQuantityModal,
+        getCurrentProductStock,
+        handleAddToCart,
+        modalAction,
+        product,
+        quantity,
+    ]);
 
     return {
         product,

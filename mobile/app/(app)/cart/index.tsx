@@ -19,6 +19,7 @@ const CartScreen = () => {
     cartGroups,
     cartCount,
     selectedSubtotal,
+    isProceedingToCheckout,
     handleBack,
     handleBrowseProducts,
     toggleVendorSelection,
@@ -187,6 +188,12 @@ const CartScreen = () => {
                             {item.unitLabel}
                           </Text>
 
+                          {item.quantity > item.stock ? (
+                            <Text className="mt-1 text-[13px] text-red-500">
+                              Only {item.stock} item(s) are available in stock.
+                            </Text>
+                          ) : null}
+
                           <View className="flex-row justify-between">
                             <Text className="mt-1 text-[18px] text-primary-500">
                               {item.price}
@@ -245,9 +252,13 @@ const CartScreen = () => {
               onPress={handleProceedToCheckout}
               className="items-center justify-center py-4 bg-white rounded-md"
             >
-              <Text className="text-lg font-medium text-primary-500">
-                Proceed to Checkout
-              </Text>
+              {isProceedingToCheckout ? (
+                <ActivityIndicator size="small" color="#F46B45" />
+              ) : (
+                <Text className="text-lg font-medium text-primary-500">
+                  Proceed to Checkout
+                </Text>
+              )}
             </Pressable>
           </View>
         </View>

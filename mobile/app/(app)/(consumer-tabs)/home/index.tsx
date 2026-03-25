@@ -6,6 +6,7 @@ import {
   ScrollView,
   Pressable,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useHome } from "@/src/features/app/consumer-tabs/home/useHome";
@@ -13,12 +14,68 @@ import { useHome } from "@/src/features/app/consumer-tabs/home/useHome";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useCartCount } from "@/src/hooks/useCartCount";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const HomeScreen = () => {
-  const { search, setSearch, categories, nearbyMarkets, popularItems } =
-    useHome();
+  const {
+    search,
+    setSearch,
+    categories,
+    nearbyMarkets,
+    popularItems,
+    loading,
+  } = useHome();
 
   const { cartCount } = useCartCount();
+
+  if (loading)
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <StatusBar style="dark" />
+
+        <View className="mx-6">
+          <View className="flex-row items-center justify-between">
+            <Pressable onPress={() => {}}>
+              <Text className="text-2xl font-semibold">
+                Palenque
+                <Text className="text-primary-500">Mart</Text>
+              </Text>
+            </Pressable>
+
+            <Pressable
+              className="relative items-center justify-center w-10 h-10"
+              hitSlop={10}
+            >
+              <Ionicons name="bag-outline" size={26} color="#1f2933" />
+            </Pressable>
+          </View>
+
+          {/* Search */}
+          <View className="mt-4">
+            <View className="relative">
+              <Ionicons
+                className="absolute z-10 transform -translate-y-1/2 left-4 top-1/2"
+                name="search"
+                size={28}
+                color="#b5b5b5"
+              />
+
+              <TextInput
+                placeholder="Search a product"
+                placeholderTextColor="#b5b5b5"
+                value={search}
+                onChangeText={(v) => setSearch(v)}
+                className="py-3 pr-4 text-base rounded-full pl-14 bg-white-600"
+              />
+            </View>
+          </View>
+        </View>
+
+        <View className="items-center justify-center flex-1">
+          <ActivityIndicator size="large" color="#f16b44" />
+        </View>
+      </SafeAreaView>
+    );
 
   return (
     <View className="flex-1 bg-white">
