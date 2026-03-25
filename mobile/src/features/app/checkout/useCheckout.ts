@@ -136,23 +136,28 @@ export const useCheckout = () => {
                 province: address.province,
                 postal_code: address.postal_code,
                 is_default: Boolean(address.is_default),
-                addressLabel:
-                    (Array.isArray(address.address_types)
-                        ? address.address_types[0]?.display_name
-                        : address.address_types?.display_name) ?? null,
+                addressLabel: (Array.isArray(address.address_types)
+                    ? address.address_types[0]?.display_name
+                    : address.address_types?.display_name) ?? null,
             }));
 
             setAddresses(formattedAddresses);
             setSelectedAddress((prev) => {
-                if (!formattedAddresses.length) return null;
+                if (!formattedAddresses.length) {
+                    return null;
+                }
 
                 const matchedAddress = formattedAddresses.find((address) =>
                     address.id === prev?.id
                 );
 
-                if (matchedAddress) return matchedAddress;
+                if (matchedAddress) {
+                    return matchedAddress;
+                }
 
-                return formattedAddresses.find((address) => address.is_default) ??
+                return formattedAddresses.find((address) =>
+                    address.is_default
+                ) ??
                     formattedAddresses[0];
             });
         } catch (error) {
@@ -201,8 +206,75 @@ export const useCheckout = () => {
                 throw new Error("No items found for checkout.");
             }
 
-            const orderNumber =
-                `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+            // Stock recheck
+            const productQuantityMap = parsedItems.reduce<
+                Record<string, number>
+            >((acc, item) => {
+                acc[item.productId] = (acc[item.productId] ?? 0) +
+                    item.quantity;
+
+                return acc;
+            }, {});
+
+            const productIds = Object.keys(productQuantityMap).map((value) =>
+                Number(value)
+            );
+
+            if (productIds.some((value) => Number.isNaN(value))) {
+                throw new Error(
+                    "A product reference is missing for one of the items.",
+                );
+            }
+
+            const { data: latestProducts, error: latestProductsError } =
+                await supabase
+                    .from("products")
+                    .select("id, stock")
+                    .in("id", productIds);
+
+            if (latestProductsError) {
+                throw new Error(latestProductsError.message);
+            }
+
+            const latestStockByProductId = new Map(
+                (latestProducts ?? []).map((product) => [
+                    String(product.id),
+                    Number(product.stock ?? 0),
+                ]),
+            );
+
+            const hasInsufficientStock = Object.entries(productQuantityMap)
+                .some(
+                    ([productId, requiredQuantity]) => {
+                        const currentStock = latestStockByProductId.get(
+                            productId,
+                        );
+
+                        return currentStock === undefined ||
+                            requiredQuantity > currentStock;
+                    },
+                );
+
+            if (hasInsufficientStock) {
+                Alert.alert(
+                    "Insufficient Stock",
+                    "One or more items no longer have enough stock for the quantity in your order.",
+                    [
+                        {
+                            text: "OK",
+                            onPress: () => {
+                                router.back();
+                            },
+                        },
+                    ],
+                );
+                return;
+            }
+            // ---------
+
+            const orderNumber = `ORD-${Date.now()}-${
+                Math.floor(Math.random() * 1000)
+            }`;
 
             const { data: createdOrder, error: createOrderError } =
                 await supabase
@@ -231,7 +303,9 @@ export const useCheckout = () => {
                 const vendorId = Number(group.vendorId);
 
                 if (Number.isNaN(vendorId)) {
-                    throw new Error("A vendor reference is missing for one of the items.");
+                    throw new Error(
+                        "A vendor reference is missing for one of the items.",
+                    );
                 }
 
                 const vendorSubtotal = group.items.reduce(
@@ -239,17 +313,19 @@ export const useCheckout = () => {
                     0,
                 );
 
-                const { data: createdVendorOrder, error: createVendorOrderError } =
-                    await supabase
-                        .from("vendor_orders")
-                        .insert({
-                            order_id: createdOrder.id,
-                            vendor_id: vendorId,
-                            status: "pending",
-                            subtotal: vendorSubtotal,
-                        })
-                        .select("id")
-                        .maybeSingle();
+                const {
+                    data: createdVendorOrder,
+                    error: createVendorOrderError,
+                } = await supabase
+                    .from("vendor_orders")
+                    .insert({
+                        order_id: createdOrder.id,
+                        vendor_id: vendorId,
+                        status: "pending",
+                        subtotal: vendorSubtotal,
+                    })
+                    .select("id")
+                    .maybeSingle();
 
                 if (createVendorOrderError) {
                     throw new Error(createVendorOrderError.message);
@@ -268,9 +344,13 @@ export const useCheckout = () => {
                 }));
 
                 if (
-                    orderItemsPayload.some((item) => Number.isNaN(item.product_id))
+                    orderItemsPayload.some((item) =>
+                        Number.isNaN(item.product_id)
+                    )
                 ) {
-                    throw new Error("A product reference is missing for one of the items.");
+                    throw new Error(
+                        "A product reference is missing for one of the items.",
+                    );
                 }
 
                 const { error: createOrderItemsError } = await supabase
@@ -281,6 +361,31 @@ export const useCheckout = () => {
                     throw new Error(createOrderItemsError.message);
                 }
             }
+
+            // Stock decrement
+            for (
+                const [productId, requiredQuantity] of Object.entries(
+                    productQuantityMap,
+                )
+            ) {
+                const currentStock = latestStockByProductId.get(productId);
+
+                if (currentStock === undefined) {
+                    throw new Error("Failed to update product stock.");
+                }
+
+                const { error: updateProductStockError } = await supabase
+                    .from("products")
+                    .update({
+                        stock: currentStock - requiredQuantity,
+                    })
+                    .eq("id", Number(productId));
+
+                if (updateProductStockError) {
+                    throw new Error(updateProductStockError.message);
+                }
+            }
+            // ---------
 
             const cartItemIds = parsedItems
                 .map((item) => item.cartItemId)

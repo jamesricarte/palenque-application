@@ -191,9 +191,9 @@ export const useCart = () => {
         }
     }, [session?.user.id]);
 
-    useEffect(() => {
+    useFocusEffect(useCallback(() => {
         fetchCart();
-    }, [fetchCart]);
+    }, [fetchCart]));
 
     useEffect(() => {
         selectedItemIds.current = new Set(
