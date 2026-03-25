@@ -5,12 +5,11 @@ import SeafoodCategoryImage from "@/src/assets/Seafood.png";
 import PoultryCategoryImage from "@/src/assets/Poultry.png";
 import FruitsCategoryImage from "@/src/assets/Fruits.png";
 import VegetablesCategoryImage from "@/src/assets/Vegetables.png";
-import LegazpiCityPublicMarketImage from "@/src/assets/Legazpi_City_Public_Market_image.jpg";
-import MeatImage from "@/src/assets/Meat.jpg";
 
 import { supabase } from "@/src/config/supabaseClient";
 import { useAuth } from "@/src/hooks/useAuth";
 import { useFocusEffect } from "expo-router";
+import { getInitials } from "@/src/utils/getInitials";
 
 export const useHome = () => {
     const { session } = useAuth();
@@ -21,10 +20,11 @@ export const useHome = () => {
             id: string;
             name: string;
             vendor: string;
+            vendorInitials: string;
             tag: string;
             price: string;
-            image: { uri: string } | typeof LegazpiCityPublicMarketImage;
-            vendorAvatar: typeof LegazpiCityPublicMarketImage;
+            image: { uri: string } | null;
+            vendorAvatar: { uri: string } | null;
         }[]
     >([]);
 
@@ -90,7 +90,9 @@ export const useHome = () => {
                                 first_name,
                                 last_name
                             )
-                        )`).limit(10);
+                        )`)
+                        .gt("stock", 0)
+                        .limit(10);
 
                     if (error) throw new Error(error.message);
 
@@ -101,20 +103,30 @@ export const useHome = () => {
                                     .from("products")
                                     .getPublicUrl(product.image_path);
 
-                                const vendorName = `${
-                                    product.vendors.users.first_name ?? ""
-                                } ${product.vendors.users.last_name ?? ""}`;
+                                const vendorFirstName =
+                                    product.vendors.users.first_name ?? "";
+                                const vendorLastName =
+                                    product.vendors.users.last_name ?? "";
+
+                                const vendorName =
+                                    `${vendorFirstName} ${vendorLastName}`;
+
+                                const vendorInitials = getInitials(
+                                    vendorFirstName,
+                                    vendorLastName,
+                                );
 
                                 return {
                                     id: String(product.id),
                                     name: product.name,
                                     vendor: vendorName,
+                                    vendorInitials,
                                     tag: product.category,
                                     price: `₱ ${product.price}/${product.unit}`,
                                     image: product.image_path
                                         ? { uri: imageData.publicUrl }
-                                        : MeatImage,
-                                    vendorAvatar: LegazpiCityPublicMarketImage,
+                                        : null,
+                                    vendorAvatar: null,
                                 };
                             }),
                         );

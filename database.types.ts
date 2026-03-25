@@ -205,6 +205,102 @@ export type Database = {
         }
         Relationships: []
       }
+      order_items: {
+        Row: {
+          created_at: string
+          id: number
+          product_id: number
+          product_name: string
+          quantity: number
+          unit_price: number
+          vendor_order_id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          product_id: number
+          product_name: string
+          quantity?: number
+          unit_price: number
+          vendor_order_id: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          product_id?: number
+          product_name?: string
+          quantity?: number
+          unit_price?: number
+          vendor_order_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_vendor_order_id_fkey"
+            columns: ["vendor_order_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          id: number
+          order_number: string
+          payment_method: Database["public"]["Enums"]["payment_method_enum"]
+          payment_status: Database["public"]["Enums"]["payment_status_enum"]
+          shipping_address_id: number
+          status: Database["public"]["Enums"]["orders_status_enum"]
+          total_amount: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          order_number: string
+          payment_method: Database["public"]["Enums"]["payment_method_enum"]
+          payment_status: Database["public"]["Enums"]["payment_status_enum"]
+          shipping_address_id: number
+          status: Database["public"]["Enums"]["orders_status_enum"]
+          total_amount: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          order_number?: string
+          payment_method?: Database["public"]["Enums"]["payment_method_enum"]
+          payment_status?: Database["public"]["Enums"]["payment_status_enum"]
+          shipping_address_id?: number
+          status?: Database["public"]["Enums"]["orders_status_enum"]
+          total_amount?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_shipping_address_id_fkey"
+            columns: ["shipping_address_id"]
+            isOneToOne: false
+            referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       phone_otps: {
         Row: {
           created_at: string
@@ -235,9 +331,10 @@ export type Database = {
           created_at: string
           id: number
           image_path: string | null
-          market_id: number
           name: string
           price: number
+          status: string
+          stock: number
           unit: string
           vendor_id: number
         }
@@ -246,9 +343,10 @@ export type Database = {
           created_at?: string
           id?: number
           image_path?: string | null
-          market_id: number
           name: string
           price: number
+          status?: string
+          stock: number
           unit: string
           vendor_id: number
         }
@@ -257,20 +355,14 @@ export type Database = {
           created_at?: string
           id?: number
           image_path?: string | null
-          market_id?: number
           name?: string
           price?: number
+          status?: string
+          stock?: number
           unit?: string
           vendor_id?: number
         }
         Relationships: [
-          {
-            foreignKeyName: "products_market_id_fkey"
-            columns: ["market_id"]
-            isOneToOne: false
-            referencedRelation: "markets"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "products_vendor_id_fkey"
             columns: ["vendor_id"]
@@ -396,6 +488,48 @@ export type Database = {
           },
         ]
       }
+      vendor_orders: {
+        Row: {
+          created_at: string
+          id: number
+          order_id: number
+          status: Database["public"]["Enums"]["vendor_orders_status_enum"]
+          subtotal: number
+          vendor_id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          order_id: number
+          status: Database["public"]["Enums"]["vendor_orders_status_enum"]
+          subtotal: number
+          vendor_id: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          order_id?: number
+          status?: Database["public"]["Enums"]["vendor_orders_status_enum"]
+          subtotal?: number
+          vendor_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_orders_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_orders_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendors: {
         Row: {
           approved_at: string | null
@@ -454,8 +588,17 @@ export type Database = {
     Enums: {
       application_status_enum: "submitted" | "approved" | "rejected"
       market_status_enum: "open" | "closed"
+      orders_status_enum: "pending_payment" | "paid" | "cancelled" | "completed"
       owner_type_enum: "user" | "vendor"
+      payment_method_enum: "cash_on_delivery" | "e_payment"
+      payment_status_enum: "pending" | "paid" | "failed" | "refunded"
       status_enum: "active" | "suspended" | "deleted"
+      vendor_orders_status_enum:
+        | "pending"
+        | "preparing"
+        | "ready"
+        | "completed"
+        | "cancelled"
       vendor_status_enum: "pending" | "approved" | "rejected" | "suspended"
     }
     CompositeTypes: {
@@ -586,8 +729,18 @@ export const Constants = {
     Enums: {
       application_status_enum: ["submitted", "approved", "rejected"],
       market_status_enum: ["open", "closed"],
+      orders_status_enum: ["pending_payment", "paid", "cancelled", "completed"],
       owner_type_enum: ["user", "vendor"],
+      payment_method_enum: ["cash_on_delivery", "e_payment"],
+      payment_status_enum: ["pending", "paid", "failed", "refunded"],
       status_enum: ["active", "suspended", "deleted"],
+      vendor_orders_status_enum: [
+        "pending",
+        "preparing",
+        "ready",
+        "completed",
+        "cancelled",
+      ],
       vendor_status_enum: ["pending", "approved", "rejected", "suspended"],
     },
   },

@@ -6,7 +6,6 @@ import {
   ScrollView,
   Pressable,
   Image,
-  ActivityIndicator,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useHome } from "@/src/features/app/consumer-tabs/home/useHome";
@@ -33,57 +32,157 @@ const HomeScreen = () => {
       <SafeAreaView className="flex-1 bg-white">
         <StatusBar style="dark" />
 
-        <View className="mx-6">
-          <View className="flex-row items-center justify-between">
-            <Pressable onPress={() => {}}>
-              <Text className="text-2xl font-semibold">
-                Palenque
-                <Text className="text-primary-500">Mart</Text>
-              </Text>
-            </Pressable>
+        <ScrollView
+          className="flex-1"
+          contentContainerClassName="pt-3 pb-28"
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="mx-6">
+            {/* Top Bar */}
+            <View className="flex-row items-center justify-between">
+              <Pressable onPress={() => {}}>
+                <Text className="text-2xl font-semibold">
+                  Palenque
+                  <Text className="text-primary-500">Mart</Text>
+                </Text>
+              </Pressable>
 
-            <Pressable
-              className="relative items-center justify-center w-10 h-10"
-              hitSlop={10}
-            >
-              <Ionicons name="bag-outline" size={26} color="#1f2933" />
-            </Pressable>
-          </View>
+              <Pressable
+                className="relative items-center justify-center w-10 h-10"
+                hitSlop={10}
+              >
+                <Ionicons name="bag-outline" size={26} color="#1f2933" />
+              </Pressable>
+            </View>
 
-          {/* Search */}
-          <View className="mt-4">
-            <View className="relative">
-              <Ionicons
-                className="absolute z-10 transform -translate-y-1/2 left-4 top-1/2"
-                name="search"
-                size={28}
-                color="#b5b5b5"
-              />
+            {/* Search */}
+            <View className="mt-4">
+              <View className="relative">
+                <Ionicons
+                  className="absolute z-10 transform -translate-y-1/2 left-4 top-1/2"
+                  name="search"
+                  size={28}
+                  color="#b5b5b5"
+                />
 
-              <TextInput
-                placeholder="Search a product"
-                placeholderTextColor="#b5b5b5"
-                value={search}
-                onChangeText={(v) => setSearch(v)}
-                className="py-3 pr-4 text-base rounded-full pl-14 bg-white-600"
-              />
+                <TextInput
+                  placeholder="Search a product"
+                  placeholderTextColor="#b5b5b5"
+                  value={search}
+                  onChangeText={(v) => setSearch(v)}
+                  className="py-3 pr-4 text-base rounded-full pl-14 bg-white-600"
+                  editable={false}
+                />
+              </View>
+            </View>
+
+            {/* Categories */}
+            <View className="mt-5">
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerClassName="pr-2"
+              >
+                <View className="flex-row gap-6">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <View key={index} className="items-center">
+                      <View className="items-center justify-center w-16 h-16 border rounded-full border-primary-500">
+                        <View className="w-[54px] h-[54px] rounded-full bg-white-600" />
+                      </View>
+
+                      <View className="w-12 h-4 mt-2 rounded-full bg-white-600" />
+                    </View>
+                  ))}
+                </View>
+              </ScrollView>
+            </View>
+
+            {/* Nearby Public Markets */}
+            <View className="mt-6">
+              <View className="w-48 rounded-full h-7 bg-white-600" />
+
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerClassName="pt-4 pr-6"
+              >
+                <View className="flex-row gap-4">
+                  {Array.from({ length: 2 }).map((_, index) => (
+                    <View
+                      key={index}
+                      className="bg-white border rounded-lg border-white-600"
+                      style={{ width: 240 }}
+                    >
+                      {/* Image */}
+                      <View className="rounded-t-lg h-28 bg-white-600" />
+
+                      {/* Info */}
+                      <View className="px-4 py-3">
+                        <View className="w-32 h-5 rounded-full bg-white-600" />
+
+                        <View className="w-40 h-4 mt-2 rounded-full bg-white-600" />
+
+                        <View className="w-20 h-4 mt-3 bg-green-100 rounded-full" />
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </ScrollView>
+            </View>
+
+            {/* Popular Items Near You */}
+            <View className="mt-6">
+              <View className="rounded-full w-44 h-7 bg-white-600" />
+
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerClassName="pt-4 pr-6"
+              >
+                <View className="flex-row gap-4">
+                  {Array.from({ length: 2 }).map((_, index) => (
+                    <View
+                      key={index}
+                      className="bg-white border rounded-lg border-white-600"
+                      style={{ width: 190 }}
+                    >
+                      {/* Image */}
+                      <View className="rounded-t-lg h-28 bg-white-600" />
+
+                      {/* Details */}
+                      <View className="px-4 py-3">
+                        <View className="h-5 rounded-full w-28 bg-white-600" />
+
+                        <View className="flex-row items-center gap-2 mt-2">
+                          <View className="w-5 h-5 rounded-full bg-white-600" />
+                          <View className="w-20 h-4 rounded-full bg-white-600" />
+                        </View>
+
+                        <View className="mt-2">
+                          <View className="self-start px-2 py-1 rounded bg-white-600">
+                            <View className="w-10 h-3 rounded-full bg-white-700" />
+                          </View>
+                        </View>
+
+                        <View className="w-16 h-5 mt-2 rounded-full bg-primary-100" />
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </ScrollView>
             </View>
           </View>
-        </View>
-
-        <View className="items-center justify-center flex-1">
-          <ActivityIndicator size="large" color="#f16b44" />
-        </View>
+        </ScrollView>
       </SafeAreaView>
     );
 
   return (
-    <View className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white">
       <StatusBar style="dark" />
 
       <ScrollView
         className="flex-1"
-        contentContainerClassName="pt-14 pb-28"
+        contentContainerClassName="pt-3 pb-28"
         showsVerticalScrollIndicator={false}
       >
         <View className="mx-6">
@@ -244,11 +343,21 @@ const HomeScreen = () => {
                   >
                     {/* Image */}
                     <View className="overflow-hidden rounded-t-lg h-28">
-                      <Image
-                        source={item.image}
-                        className="w-full h-full"
-                        resizeMode="cover"
-                      />
+                      {item.image ? (
+                        <Image
+                          source={item.image}
+                          className="w-full h-full"
+                          resizeMode="cover"
+                        />
+                      ) : (
+                        <View className="items-center justify-center w-full h-full bg-white-600">
+                          <Ionicons
+                            name="image-outline"
+                            size={32}
+                            color="#9ca3af"
+                          />
+                        </View>
+                      )}
                     </View>
 
                     {/* Details */}
@@ -261,13 +370,20 @@ const HomeScreen = () => {
                       </Text>
 
                       <View className="flex-row items-center gap-2 mt-2">
-                        <View className="w-5 h-5 overflow-hidden rounded-full bg-white-600">
+                        {item.vendorAvatar ? (
                           <Image
                             source={item.vendorAvatar}
-                            className="w-full h-full"
+                            className="w-5 h-5 rounded-full"
                             resizeMode="cover"
                           />
-                        </View>
+                        ) : (
+                          <View className="items-center justify-center w-5 h-5 rounded-full bg-brandBlack-50">
+                            <Text className="text-[10px] font-semibold text-black-500">
+                              {item.vendorInitials}
+                            </Text>
+                          </View>
+                        )}
+
                         <Text className="text-sm text-white-700">
                           {item.vendor}
                         </Text>
@@ -290,7 +406,7 @@ const HomeScreen = () => {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
