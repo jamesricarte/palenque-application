@@ -17,6 +17,7 @@ type CartItem = {
     subtotal: string;
     subtotalValue: number;
     image: string;
+    unit: string;
     unitLabel: string;
     isSelected: boolean;
 };
@@ -159,6 +160,7 @@ export const useCart = () => {
                         subtotal: `₱ ${subtotalValue.toFixed(2)}`,
                         subtotalValue,
                         image: productImageUrl,
+                        unit: product.unit,
                         unitLabel: `Per ${product.unit}`,
                         isSelected: selectedItemIds.current.has(
                             String(item.id),
@@ -447,7 +449,9 @@ export const useCart = () => {
                     vendorInitials: group.vendorInitials,
                     productName: item.name,
                     quantity: item.quantity,
+                    unit: item.unit,
                     unitPrice: item.priceValue,
+                    category: item.category,
                     subtotal: item.subtotalValue,
                     image: item.image,
                 }))

@@ -2,13 +2,13 @@ import React from "react";
 import { View, Text, Pressable, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useOrders } from "@/src/features/app/orders/useOrders";
+import { Ionicons } from "@expo/vector-icons";
+import { useVendorOrders } from "@/src/features/app/orders/useVendorOrders";
 import CashIcon from "@/src/assets/cashIcon.png";
 
-const OrderScreen = () => {
+const VendorOrdersScreen = () => {
   const { activeTab, setActiveTab, orderTabs, orderItems, handleBack } =
-    useOrders();
+    useVendorOrders();
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -156,4 +156,4 @@ const OrderScreen = () => {
   );
 };
 
-export default OrderScreen;
+export default VendorOrdersScreen;

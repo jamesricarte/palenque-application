@@ -13,7 +13,9 @@ type CheckoutItem = {
     vendorInitials: string;
     productName: string;
     quantity: number;
+    unit: string;
     unitPrice: number;
+    category: string;
     subtotal: number;
     image: string;
 };
@@ -272,7 +274,7 @@ export const useCheckout = () => {
             }
             // ---------
 
-            const orderNumber = `ORD-${Date.now()}-${
+            const orderNumber = `ORD${Date.now()}${
                 Math.floor(Math.random() * 1000)
             }`;
 
@@ -340,7 +342,9 @@ export const useCheckout = () => {
                     vendor_order_id: createdVendorOrder.id,
                     product_name: item.productName,
                     quantity: item.quantity,
+                    unit: item.unit,
                     unit_price: item.unitPrice,
+                    category: item.category,
                 }));
 
                 if (

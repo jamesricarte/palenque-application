@@ -24,7 +24,7 @@ const orderItems = [
     },
 ];
 
-export const useOrders = () => {
+export const useVendorOrders = () => {
     const [activeTab, setActiveTab] = useState("New");
 
     const handleBack = () => {

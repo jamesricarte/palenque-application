@@ -276,7 +276,13 @@ export const useProductDetails = (fetchCartCount: () => void) => {
         } finally {
             setIsConfirming(false);
         }
-    }, [closeQuantityModal, getCurrentProductStock, product, quantity, session?.user.id]);
+    }, [
+        closeQuantityModal,
+        getCurrentProductStock,
+        product,
+        quantity,
+        session?.user.id,
+    ]);
 
     const handleConfirmQuantityAction = useCallback(async () => {
         if (modalAction === "buy") {
@@ -304,7 +310,9 @@ export const useProductDetails = (fetchCartCount: () => void) => {
                         vendorInitials: product.vendorInitials,
                         productName: product.name,
                         quantity,
+                        unit: product.unit,
                         unitPrice: product.priceValue,
+                        category: product.category,
                         subtotal: product.priceValue * quantity,
                         image: product.image,
                     },

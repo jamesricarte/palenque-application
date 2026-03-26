@@ -37,7 +37,7 @@ const OrderConfirmationScreen = () => {
         : paymentMethodValue || "Cash on Delivery";
 
   const handleTrackOrder = () => {
-    console.log("Tracking order...");
+    router.replace("/(app)/(consumer-tabs)/orders");
   };
 
   const handleBackToHome = () => {

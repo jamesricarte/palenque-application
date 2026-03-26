@@ -20,7 +20,7 @@ const HomeScreen = () => {
         </Pressable>
 
         <Pressable
-          onPress={() => router.push("/(app)/orders/orders")}
+          onPress={() => router.push("/(app)/orders/vendor-orders")}
           className="items-center justify-center w-10 h-10"
           hitSlop={10}
         >

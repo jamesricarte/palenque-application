@@ -3,8 +3,9 @@ import { View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
-const MyProfileScreen = () => {
+const MyStoreScreen = () => {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar style="dark" />
@@ -19,7 +20,7 @@ const MyProfileScreen = () => {
         </Pressable>
 
         <Pressable
-          onPress={() => {}}
+          onPress={() => router.push("/(app)/orders/vendor-orders")}
           className="items-center justify-center w-10 h-10"
           hitSlop={10}
         >
@@ -30,4 +31,4 @@ const MyProfileScreen = () => {
   );
 };
 
-export default MyProfileScreen;
+export default MyStoreScreen;
