@@ -15,6 +15,7 @@ import CashIcon from "@/src/assets/cashIcon.png";
 
 const statusLabelMap = {
   pending: "Pending",
+  confirmed: "Confirmed",
   preparing: "Preparing",
   ready: "Ready",
   completed: "Completed",
@@ -23,14 +24,22 @@ const statusLabelMap = {
 
 const statusClassNameMap = {
   pending: "bg-secondary-500",
-  preparing: "bg-primary-500",
-  ready: "bg-primary-500",
+  confirmed: "bg-secondary-500",
+  preparing: "bg-secondary-500",
+  ready: "bg-secondary-500",
   completed: "bg-brandBlack-400",
   cancelled: "bg-red-500",
 } as const;
 
 const VendorOrdersScreen = () => {
-  const { activeTab, setActiveTab, orderTabs, orders, loading } = useOrders();
+  const {
+    activeTab,
+    setActiveTab,
+    orderTabs,
+    orders,
+    loading,
+    handleOrderCardPress,
+  } = useOrders();
   const [expandedOrderIds, setExpandedOrderIds] = useState<string[]>([]);
 
   const toggleOrderExpansion = (orderId: string) => {
@@ -111,9 +120,10 @@ const VendorOrdersScreen = () => {
                 ) > 1;
 
               return (
-                <View
+                <Pressable
                   key={order.id}
                   className="p-4 bg-white border rounded-md border-brandBlack-50"
+                  onPress={() => handleOrderCardPress(order.id)}
                 >
                   {/* Top Row */}
                   <View className="flex-row items-start justify-between mb-2">
@@ -271,7 +281,7 @@ const VendorOrdersScreen = () => {
                       </Text>
                     </View>
                   </View>
-                </View>
+                </Pressable>
               );
             })}
           </View>

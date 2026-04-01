@@ -1,4 +1,4 @@
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { supabase } from "@/src/config/supabaseClient";
 import { useAuth } from "@/src/hooks/useAuth";
@@ -15,6 +15,7 @@ const orderTabs = [
 
 type OrderStatus =
     | "pending"
+    | "confirmed"
     | "preparing"
     | "ready"
     | "completed"
@@ -56,10 +57,11 @@ const getSingleRelation = <T>(value: T | T[] | null | undefined): T | null => {
 
 const statusPriority: Record<OrderStatus, number> = {
     pending: 1,
-    preparing: 2,
-    ready: 3,
-    completed: 4,
-    cancelled: 5,
+    confirmed: 2,
+    preparing: 3,
+    ready: 4,
+    completed: 5,
+    cancelled: 6,
 };
 
 const formatCurrency = (value: number) => `₱ ${value.toFixed(2)}`;
@@ -98,6 +100,7 @@ const getSlowestStatus = (
     const sanitizedStatuses = statuses.filter(
         (status): status is OrderStatus =>
             status === "pending" ||
+            status === "confirmed" ||
             status === "preparing" ||
             status === "ready" ||
             status === "completed" ||
@@ -129,6 +132,10 @@ export const useOrders = () => {
     const [activeTab, setActiveTab] = useState("All");
     const [orders, setOrders] = useState<OrderCard[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const handleOrderCardPress = (id: number | string) => {
+        router.push(`/orders/${id}`);
+    };
 
     const fetchOrders = useCallback(async () => {
         const userId = session?.user.id;
@@ -269,6 +276,11 @@ export const useOrders = () => {
 
     const filteredOrders = useMemo(() => {
         if (activeTab === "All") return orders;
+        if (activeTab === "Pending") {
+            return orders.filter((order) =>
+                order.status === "pending" || order.status === "confirmed"
+            );
+        }
         if (activeTab === "On the Way") {
             return orders.filter((order) => order.status === "ready");
         }
@@ -284,5 +296,6 @@ export const useOrders = () => {
         orderTabs,
         orders: filteredOrders,
         loading,
+        handleOrderCardPress,
     };
 };
