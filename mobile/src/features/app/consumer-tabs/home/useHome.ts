@@ -1,10 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-
-import MeatCategoryImage from "@/src/assets/Meat.png";
-import SeafoodCategoryImage from "@/src/assets/Seafood.png";
-import PoultryCategoryImage from "@/src/assets/Poultry.png";
-import FruitsCategoryImage from "@/src/assets/Fruits.png";
-import VegetablesCategoryImage from "@/src/assets/Vegetables.png";
+import { useCallback, useEffect, useState } from "react";
 
 import { supabase } from "@/src/config/supabaseClient";
 import { useAuth } from "@/src/hooks/useAuth";
@@ -14,6 +8,12 @@ import { getInitials } from "@/src/utils/getInitials";
 export const useHome = () => {
     const { session } = useAuth();
     const [search, setSearch] = useState("");
+    const [categories, setCategories] = useState<
+        {
+            label: string;
+            image: { uri: string } | null;
+        }[]
+    >([]);
 
     const [popularItems, setPopularItems] = useState<
         {
@@ -39,6 +39,9 @@ export const useHome = () => {
     >([]);
 
     const [hasMarketsFetched, setHasMarketsFetched] = useState<boolean>(false);
+    const [hasCategoriesFetched, setHasCategoriesFetched] = useState<boolean>(
+        false,
+    );
     const [hasProductsFetched, setHasProductsFetched] = useState<boolean>(
         false,
     );
@@ -74,6 +77,83 @@ export const useHome = () => {
 
     useFocusEffect(
         useCallback(() => {
+            const fetchCategories = async () => {
+                try {
+                    const categoryOrder = [
+                        "Meat",
+                        "Seafood",
+                        "Poultry",
+                        "Fruits",
+                        "Vegetables",
+                        "Others",
+                    ];
+
+                    const { data, error } = await supabase.from("categories")
+                        .select(`
+                        name,
+                        image_path
+                    `);
+
+                    if (error) throw new Error(error.message);
+
+                    if (data) {
+                        setCategories(
+                            data
+                                .map((category: any) => {
+                                    const { data: imageData } =
+                                        category.image_path
+                                            ? supabase.storage
+                                                .from("categories")
+                                                .getPublicUrl(
+                                                    category.image_path,
+                                                )
+                                            : { data: { publicUrl: "" } };
+
+                                    return {
+                                        id: String(category.id),
+                                        label: category.name,
+                                        image: category.image_path
+                                            ? { uri: imageData.publicUrl }
+                                            : null,
+                                    };
+                                })
+                                .sort((firstCategory, secondCategory) => {
+                                    const firstCategoryIndex =
+                                        categoryOrder.indexOf(
+                                            firstCategory.label,
+                                        );
+                                    const secondCategoryIndex =
+                                        categoryOrder.indexOf(
+                                            secondCategory.label,
+                                        );
+
+                                    if (
+                                        firstCategoryIndex === -1 &&
+                                        secondCategoryIndex === -1
+                                    ) {
+                                        return 0;
+                                    }
+
+                                    if (firstCategoryIndex === -1) {
+                                        return 1;
+                                    }
+
+                                    if (secondCategoryIndex === -1) {
+                                        return -1;
+                                    }
+
+                                    return firstCategoryIndex -
+                                        secondCategoryIndex;
+                                }),
+                        );
+                    }
+                } catch (error: any) {
+                    console.error(error);
+                } finally {
+                    setHasCategoriesFetched(true);
+                }
+            };
+
             const fetchProducts = async () => {
                 try {
                     const { data, error } = await supabase.from("products")
@@ -283,29 +363,17 @@ export const useHome = () => {
                 }
             };
 
+            fetchCategories();
             fetchProducts();
             fetchMarkets();
         }, [session?.user?.id]),
     );
 
     useEffect(() => {
-        if (hasMarketsFetched && hasProductsFetched) setLoading(false);
-    }, [hasMarketsFetched, hasProductsFetched]);
-
-    const categories = useMemo(
-        () => [
-            { id: "meat", label: "Meat", image: MeatCategoryImage },
-            { id: "seafood", label: "Seafood", image: SeafoodCategoryImage },
-            { id: "poultry", label: "Poultry", image: PoultryCategoryImage },
-            { id: "fruits", label: "Fruits", image: FruitsCategoryImage },
-            {
-                id: "vegetables",
-                label: "Vegetables",
-                image: VegetablesCategoryImage,
-            },
-        ],
-        [],
-    );
+        if (hasMarketsFetched && hasProductsFetched && hasCategoriesFetched) {
+            setLoading(false);
+        }
+    }, [hasCategoriesFetched, hasMarketsFetched, hasProductsFetched]);
 
     return {
         search,

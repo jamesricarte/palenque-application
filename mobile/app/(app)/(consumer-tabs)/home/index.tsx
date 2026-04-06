@@ -242,17 +242,25 @@ const HomeScreen = () => {
               <View className="flex-row gap-6">
                 {categories.map((cat) => (
                   <Pressable
-                    key={cat.id}
+                    key={cat.label}
                     onPress={() => {}}
                     className="items-center"
                   >
                     <View className="items-center justify-center w-16 h-16 border rounded-full border-primary-500">
-                      <View className="w-[54px] h-[54px] rounded-full overflow-hidden">
-                        <Image
-                          source={cat.image}
-                          className="w-full h-full"
-                          resizeMode="cover"
-                        />
+                      <View className="w-[54px] h-[54px] rounded-full overflow-hidden items-center justify-center bg-white-600">
+                        {cat.image ? (
+                          <Image
+                            source={cat.image}
+                            className="w-full h-full"
+                            resizeMode="cover"
+                          />
+                        ) : (
+                          <Ionicons
+                            name="ellipsis-horizontal"
+                            size={24}
+                            color="#1f2933"
+                          />
+                        )}
                       </View>
                     </View>
 
