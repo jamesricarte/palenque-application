@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useCartCount } from "@/src/hooks/useCartCount";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuth } from "@/src/hooks/useAuth";
 
 const HomeScreen = () => {
   const {
@@ -26,6 +27,8 @@ const HomeScreen = () => {
   } = useHome();
 
   const { cartCount } = useCartCount();
+  const { session, isLoading: authLoading } = useAuth();
+  const isLoggedIn = !!session;
 
   if (loading)
     return (
@@ -34,7 +37,7 @@ const HomeScreen = () => {
 
         <ScrollView
           className="flex-1"
-          contentContainerClassName="pt-3 pb-28"
+          contentContainerClassName={`pt-3 ${!authLoading && !isLoggedIn ? "pb-40" : "pb-28"}`}
           showsVerticalScrollIndicator={false}
         >
           <View className="mx-6">
@@ -173,6 +176,30 @@ const HomeScreen = () => {
             </View>
           </View>
         </ScrollView>
+
+        {!authLoading && !isLoggedIn && (
+          <View className="px-5 pt-5 pb-6 bg-primary-500">
+            <View className="flex-row gap-4">
+              <Pressable
+                onPress={() => router.push("/(auth)/login")}
+                className="items-center justify-center flex-1 py-4 bg-white border border-white rounded-lg"
+              >
+                <Text className="text-lg font-semibold text-primary-500">
+                  Login
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={() => router.push("/(auth)/register")}
+                className="items-center justify-center flex-1 py-4 border border-white rounded-lg"
+              >
+                <Text className="text-lg font-semibold text-white">
+                  Register
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
       </SafeAreaView>
     );
 
@@ -182,7 +209,7 @@ const HomeScreen = () => {
 
       <ScrollView
         className="flex-1"
-        contentContainerClassName="pt-3 pb-28"
+        contentContainerClassName={`pt-3 ${!authLoading && !isLoggedIn ? "pb-40" : "pb-28"}`}
         showsVerticalScrollIndicator={false}
       >
         <View className="mx-6">
@@ -414,6 +441,28 @@ const HomeScreen = () => {
           </View>
         </View>
       </ScrollView>
+
+      {!authLoading && !isLoggedIn && (
+        <View className="px-5 pt-5 pb-6 bg-primary-500">
+          <View className="flex-row gap-4">
+            <Pressable
+              onPress={() => router.push("/(auth)/login")}
+              className="items-center justify-center flex-1 py-4 bg-white border border-white rounded-lg"
+            >
+              <Text className="text-lg font-semibold text-primary-500">
+                Login
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => router.push("/(auth)/register")}
+              className="items-center justify-center flex-1 py-4 border border-white rounded-lg"
+            >
+              <Text className="text-lg font-semibold text-white">Register</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 };

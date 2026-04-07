@@ -2,8 +2,12 @@ import React from "react";
 import { Tabs } from "expo-router";
 
 import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "@/src/hooks/useAuth";
 
 const ConsumerTabsLayout = () => {
+  const { session, isLoading } = useAuth();
+  const isLoggedIn = !!session;
+
   return (
     <Tabs
       screenOptions={{
@@ -18,6 +22,7 @@ const ConsumerTabsLayout = () => {
           paddingTop: 11,
           paddingBottom: 10,
           height: 94,
+          display: !isLoading && !isLoggedIn ? "none" : "flex",
         },
         tabBarLabelStyle: {
           fontSize: 13,
@@ -42,6 +47,7 @@ const ConsumerTabsLayout = () => {
         name="orders/index"
         options={{
           title: "My Orders",
+          href: isLoggedIn ? undefined : null,
           tabBarIcon: ({ size, color, focused }) => (
             <Ionicons
               name={focused ? "cube" : "cube-outline"}
@@ -55,6 +61,7 @@ const ConsumerTabsLayout = () => {
         name="notifications/index"
         options={{
           title: "Notifications",
+          href: isLoggedIn ? undefined : null,
           tabBarIcon: ({ size, color, focused }) => (
             <Ionicons
               name={focused ? "notifications" : "notifications-outline"}
@@ -68,6 +75,7 @@ const ConsumerTabsLayout = () => {
         name="profile/index"
         options={{
           title: "Account",
+          href: isLoggedIn ? undefined : null,
           tabBarIcon: ({ size, color, focused }) => (
             <Ionicons
               name={focused ? "person" : "person-outline"}

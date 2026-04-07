@@ -5,7 +5,7 @@ import { useAuth } from "@/src/hooks/useAuth";
 import { Redirect } from "expo-router";
 
 const Index = () => {
-  const { session, isLoading } = useAuth();
+  const { isLoading } = useAuth();
 
   if (isLoading)
     return (
@@ -13,8 +13,6 @@ const Index = () => {
         <ActivityIndicator size="large" color="black" />
       </View>
     );
-
-  if (!session) return <Redirect href="/(auth)/login" />;
 
   return <Redirect href="/(app)/(consumer-tabs)/home" />;
 };

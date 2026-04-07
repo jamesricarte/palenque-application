@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import { supabase } from "../config/supabaseClient";
 import { Session } from "@supabase/supabase-js";
+import { router } from "expo-router";
 
 type userType = {
   status: string;
@@ -48,7 +49,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -84,9 +87,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setVendorData(null);
+    try {
+      setIsLoading(true);
+
+      if (router.canDismiss?.()) {
+        router.dismissAll();
+      }
+      router.replace("/");
+
+      await supabase.auth.signOut();
+      setUser(null);
+      setVendorData(null);
+    } catch (error: any) {
+      console.error(error);
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
+    }
   };
 
   return (
