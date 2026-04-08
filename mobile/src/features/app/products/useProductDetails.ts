@@ -124,11 +124,30 @@ export const useProductDetails = (fetchCartCount: () => void) => {
 
     const openQuantityModal = useCallback(
         (action: Exclude<ModalAction, null>) => {
+            if (!session) {
+                Alert.alert(
+                    "Login Required",
+                    action === "buy"
+                        ? "Please log in to continue with your purchase."
+                        : "Please log in to add items to your cart and continue shopping.",
+                    [
+                        { text: "Cancel", style: "cancel" },
+                        {
+                            text: "Login",
+                            onPress: () => {
+                                router.push("/(auth)/login");
+                            },
+                        },
+                    ],
+                );
+                return;
+            }
+
             setModalAction(action);
             setQuantity(1);
             setIsQuantityModalVisible(true);
         },
-        [],
+        [session],
     );
 
     const closeQuantityModal = useCallback(() => {
@@ -285,6 +304,26 @@ export const useProductDetails = (fetchCartCount: () => void) => {
     ]);
 
     const handleConfirmQuantityAction = useCallback(async () => {
+        if (!session) {
+            closeQuantityModal();
+            Alert.alert(
+                "Login Required",
+                modalAction === "buy"
+                    ? "You should be logged in to be able to buy this product now."
+                    : "You should be logged in to be able to add this product to your cart.",
+                [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                        text: "Login",
+                        onPress: () => {
+                            router.push("/(auth)/login");
+                        },
+                    },
+                ],
+            );
+            return;
+        }
+
         if (modalAction === "buy") {
             try {
                 setIsConfirming(true);
@@ -347,6 +386,7 @@ export const useProductDetails = (fetchCartCount: () => void) => {
         modalAction,
         product,
         quantity,
+        session,
     ]);
 
     return {

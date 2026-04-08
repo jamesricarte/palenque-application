@@ -15,6 +15,7 @@ import { useCart } from "@/src/features/app/cart/useCart";
 
 const CartScreen = () => {
   const {
+    isLoggedIn,
     loading,
     cartGroups,
     cartCount,
@@ -55,11 +56,15 @@ const CartScreen = () => {
       {cartGroups.length === 0 ? (
         <View className="items-center justify-center flex-1 px-5">
           <Text className="mb-2 text-[18px] text-center text-white-700">
-            Your cart is empty.
+            {isLoggedIn
+              ? "Your cart is empty."
+              : "You must be logged in to view your cart."}
           </Text>
 
           <Text className="mb-8 text-[18px] leading-7 text-center text-white-700">
-            Browse products and add items to get started.
+            {isLoggedIn
+              ? "Browse products and add items to get started."
+              : "Please log in to access your cart and continue shopping."}
           </Text>
 
           <Pressable
@@ -67,7 +72,7 @@ const CartScreen = () => {
             className="items-center justify-center w-full py-4 rounded-md bg-primary-500"
           >
             <Text className="text-lg font-semibold text-white">
-              Browse Products
+              {isLoggedIn ? "Browse Products" : "Login"}
             </Text>
           </Pressable>
         </View>

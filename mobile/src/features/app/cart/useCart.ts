@@ -42,6 +42,7 @@ const getSingleRelation = <T>(value: T | T[] | null | undefined): T | null => {
 
 export const useCart = () => {
     const { session } = useAuth();
+    const isLoggedIn = !!session;
 
     const [loading, setLoading] = useState(true);
     const [cartGroups, setCartGroups] = useState<CartGroup[]>([]);
@@ -54,7 +55,8 @@ export const useCart = () => {
 
         try {
             if (!userId) {
-                throw new Error("You must be logged in to see your cart.");
+                setCartGroups([]);
+                return;
             }
 
             const { data: cartData, error: cartError } = await supabase
@@ -526,8 +528,13 @@ export const useCart = () => {
     }, []);
 
     const handleBrowseProducts = useCallback(() => {
+        if (!isLoggedIn) {
+            router.push("/(auth)/login");
+            return;
+        }
+
         router.back();
-    }, []);
+    }, [isLoggedIn]);
 
     const handleDeleteCartItem = useCallback(
         (vendorId: string, itemId: string, itemName: string) => {
@@ -549,6 +556,7 @@ export const useCart = () => {
     );
 
     return {
+        isLoggedIn,
         loading,
         cartGroups,
         cartCount,
