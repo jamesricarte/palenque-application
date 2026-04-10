@@ -53,7 +53,7 @@ export const useProfile = () => {
     };
 
     const onPressViewProfile = () => {
-        // Navigate to profile details later
+        router.push("/(app)/profile-details");
     };
 
     const onPressMyAddress = () => {

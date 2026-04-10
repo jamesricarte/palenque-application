@@ -118,12 +118,12 @@ export const useHome = () => {
                                     };
                                 })
                                 .sort((firstCategory, secondCategory) => {
-                                    const firstCategoryIndex =
-                                        categoryOrder.indexOf(
+                                    const firstCategoryIndex = categoryOrder
+                                        .indexOf(
                                             firstCategory.label,
                                         );
-                                    const secondCategoryIndex =
-                                        categoryOrder.indexOf(
+                                    const secondCategoryIndex = categoryOrder
+                                        .indexOf(
                                             secondCategory.label,
                                         );
 
@@ -168,7 +168,8 @@ export const useHome = () => {
                             id,
                             users (
                                 first_name,
-                                last_name
+                                last_name,
+                                profile_image_path
                             )
                         )`)
                         .gt("stock", 0)
@@ -182,6 +183,19 @@ export const useHome = () => {
                                 const { data: imageData } = supabase.storage
                                     .from("products")
                                     .getPublicUrl(product.image_path);
+
+                                const profileImagePath =
+                                    product.vendors.users.profile_image_path ||
+                                    null;
+                                const vendorAvatar = profileImagePath
+                                    ? {
+                                        uri: supabase
+                                            .storage
+                                            .from("users")
+                                            .getPublicUrl(profileImagePath).data
+                                            .publicUrl,
+                                    }
+                                    : null;
 
                                 const vendorFirstName =
                                     product.vendors.users.first_name ?? "";
@@ -206,7 +220,7 @@ export const useHome = () => {
                                     image: product.image_path
                                         ? { uri: imageData.publicUrl }
                                         : null,
-                                    vendorAvatar: null,
+                                    vendorAvatar,
                                 };
                             }),
                         );

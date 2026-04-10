@@ -111,11 +111,11 @@ const CartScreen = () => {
                     {group.vendorImage ? (
                       <Image
                         source={{ uri: group.vendorImage }}
-                        className="w-8 h-8 rounded-full"
+                        className="rounded-full w-7 h-7"
                         resizeMode="cover"
                       />
                     ) : (
-                      <View className="items-center justify-center w-8 h-8 rounded-full bg-brandBlack-50">
+                      <View className="items-center justify-center rounded-full w-7 h-7 bg-brandBlack-50">
                         <Text className="text-[12px] font-semibold text-black-500">
                           {group.vendorInitials}
                         </Text>

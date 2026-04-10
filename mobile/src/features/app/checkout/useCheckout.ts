@@ -65,7 +65,7 @@ export const useCheckout = () => {
                 groups[item.vendorId] = {
                     vendorId: item.vendorId,
                     vendorName: item.vendorName,
-                    vendorImage: null,
+                    vendorImage: item.vendorImage,
                     vendorInitials: item.vendorInitials,
                     items: [],
                 };

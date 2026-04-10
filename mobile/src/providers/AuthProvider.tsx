@@ -11,6 +11,8 @@ type userType = {
   email: string | null;
   delivery_address: string | null;
   phone: string;
+  profile_image_path: string | null;
+  profile_image_url: string | null;
 };
 
 type vendorDataType = {
@@ -78,6 +80,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw new Error(error.message);
 
       if (!data) throw new Error("User doesnt have user's info yet.");
+
+      data.profile_image_url = data.profile_image_path
+        ? supabase.storage.from("users").getPublicUrl(data.profile_image_path)
+            .data.publicUrl
+        : null;
 
       setUser(data);
     } catch (error) {

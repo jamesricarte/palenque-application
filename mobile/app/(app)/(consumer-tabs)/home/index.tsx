@@ -413,7 +413,7 @@ const HomeScreen = () => {
                           />
                         ) : (
                           <View className="items-center justify-center w-5 h-5 rounded-full bg-brandBlack-50">
-                            <Text className="text-[10px] font-semibold text-black-500">
+                            <Text className="text-[10px] font-semibold text-black">
                               {item.vendorInitials}
                             </Text>
                           </View>

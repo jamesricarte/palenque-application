@@ -12,7 +12,7 @@ import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 
 import CashIcon from "@/src/assets/cashIcon.png";
-import { useOrderDetails } from "@/src/features/app/orders/orderDetails";
+import { useOrderDetails } from "@/src/features/app/orders/useOrderDetails";
 
 const OrderDetailsScreen = () => {
   const { orderDetails, loading, errorMessage, handleBack } = useOrderDetails();
@@ -121,11 +121,19 @@ const OrderDetailsScreen = () => {
               {orderDetails.vendorGroups.map((group) => (
                 <View key={group.id}>
                   <View className="flex-row items-center gap-2 mb-3">
-                    <View className="items-center justify-center w-8 h-8 rounded-full bg-brandBlack-50">
-                      <Text className="text-[12px] font-semibold text-black-500">
-                        {group.vendorInitials}
-                      </Text>
-                    </View>
+                    {group.vendorImage ? (
+                      <Image
+                        source={{ uri: group.vendorImage }}
+                        className="w-8 h-8 rounded-full"
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <View className="items-center justify-center w-8 h-8 rounded-full bg-brandBlack-50">
+                        <Text className="text-[12px] font-semibold text-black-500">
+                          {group.vendorInitials}
+                        </Text>
+                      </View>
+                    )}
 
                     <Text className="text-lg text-black-500">
                       {group.vendorName}

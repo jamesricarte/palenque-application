@@ -95,7 +95,8 @@ export const useCart = () => {
                                 user_id,
                                 users (
                                     first_name,
-                                    last_name
+                                    last_name,
+                                    profile_image_path
                                 )
                             )
                         )
@@ -123,6 +124,13 @@ export const useCart = () => {
                     const firstName = vendorUser?.first_name ?? "Unknown";
                     const lastName = vendorUser?.last_name ?? "Vendor";
                     const vendorName = `${firstName} ${lastName}`.trim();
+                    const vendorImagePath =
+                        product.vendors.users.profile_image_path ?? "";
+                    const vendorImageUrl = vendorImagePath
+                        ? supabase.storage.from("users").getPublicUrl(
+                            vendorImagePath,
+                        ).data.publicUrl
+                        : "";
 
                     const imagePath = product.image_path ?? "";
                     const productImageUrl = imagePath
@@ -140,7 +148,7 @@ export const useCart = () => {
                         acc[vendorId] = {
                             vendorId,
                             vendorName,
-                            vendorImage: null,
+                            vendorImage: vendorImageUrl,
                             vendorInitials: getInitials(firstName, lastName),
                             totalItems: 0,
                             subtotal: "₱ 0.00",
@@ -447,7 +455,7 @@ export const useCart = () => {
                     productId: item.productId,
                     vendorId: group.vendorId,
                     vendorName: group.vendorName,
-                    vendorImage: null,
+                    vendorImage: group.vendorImage,
                     vendorInitials: group.vendorInitials,
                     productName: item.name,
                     quantity: item.quantity,

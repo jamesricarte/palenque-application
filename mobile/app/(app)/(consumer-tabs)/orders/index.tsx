@@ -148,11 +148,19 @@ const VendorOrdersScreen = () => {
                       order.vendorOrders.map((vendorOrder) => (
                         <View key={vendorOrder.id} className="gap-3">
                           <View className="flex-row items-center gap-2">
-                            <View className="items-center justify-center w-8 h-8 rounded-full bg-brandBlack-50">
-                              <Text className="text-[12px] font-semibold text-black-500">
-                                {vendorOrder.vendorInitials}
-                              </Text>
-                            </View>
+                            {vendorOrder.vendorImage ? (
+                              <Image
+                                source={{ uri: vendorOrder.vendorImage }}
+                                className="w-8 h-8 rounded-full"
+                                resizeMode="cover"
+                              />
+                            ) : (
+                              <View className="items-center justify-center w-8 h-8 rounded-full bg-brandBlack-50">
+                                <Text className="text-[12px] font-semibold text-black-500">
+                                  {vendorOrder.vendorInitials}
+                                </Text>
+                              </View>
+                            )}
 
                             <Text className="mt-1 text-black-400">
                               {vendorOrder.vendorName}
@@ -196,11 +204,19 @@ const VendorOrdersScreen = () => {
                     ) : firstItem ? (
                       <View className="gap-3">
                         <View className="flex-row items-center gap-2">
-                          <View className="items-center justify-center w-8 h-8 rounded-full bg-brandBlack-50">
-                            <Text className="text-[12px] font-semibold text-black-500">
-                              {firstVendorOrder?.vendorInitials ?? "V"}
-                            </Text>
-                          </View>
+                          {firstVendorOrder.vendorImage ? (
+                            <Image
+                              source={{ uri: firstVendorOrder.vendorImage }}
+                              className="w-8 h-8 rounded-full"
+                              resizeMode="cover"
+                            />
+                          ) : (
+                            <View className="items-center justify-center w-8 h-8 rounded-full bg-brandBlack-50">
+                              <Text className="text-[12px] font-semibold text-black-500">
+                                {firstVendorOrder?.vendorInitials ?? "V"}
+                              </Text>
+                            </View>
+                          )}
 
                           <Text className="mt-1 text-black-400">
                             {firstVendorOrder?.vendorName ?? "Vendor Name"}

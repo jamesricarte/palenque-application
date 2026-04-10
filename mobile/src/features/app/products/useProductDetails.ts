@@ -65,16 +65,18 @@ export const useProductDetails = (fetchCartCount: () => void) => {
                 id: string | null;
                 firstName: string;
                 lastName: string;
+                vendorImagePath: string | null;
             } = {
                 id: vendorData?.id || null,
                 firstName: "Unknown",
                 lastName: "Vendor",
+                vendorImagePath: null,
             };
 
             if (vendorData?.user_id) {
                 const { data: userData, error: userError } = await supabase
                     .from("users")
-                    .select("first_name, last_name")
+                    .select("first_name, last_name, profile_image_path")
                     .eq("user_id", vendorData.user_id)
                     .maybeSingle();
 
@@ -85,6 +87,7 @@ export const useProductDetails = (fetchCartCount: () => void) => {
                         id: vendorData.id || null,
                         firstName: userData.first_name,
                         lastName: userData.last_name,
+                        vendorImagePath: userData.profile_image_path,
                     };
                 }
             }
@@ -92,6 +95,13 @@ export const useProductDetails = (fetchCartCount: () => void) => {
             const { data: imageData } = supabase.storage
                 .from("products")
                 .getPublicUrl(productData.image_path);
+
+            const vendorImage = vendorInfo.vendorImagePath
+                ? supabase
+                    .storage
+                    .from("users")
+                    .getPublicUrl(vendorInfo.vendorImagePath).data.publicUrl
+                : null;
 
             setProduct({
                 id: String(productData.id),
@@ -104,7 +114,7 @@ export const useProductDetails = (fetchCartCount: () => void) => {
                 image: imageData.publicUrl,
                 vendorId: vendorInfo.id,
                 vendorName: `${vendorInfo.firstName} ${vendorInfo.lastName}`,
-                vendorImage: null,
+                vendorImage,
                 vendorInitials: getInitials(
                     vendorInfo.firstName,
                     vendorInfo.lastName,
@@ -345,7 +355,7 @@ export const useProductDetails = (fetchCartCount: () => void) => {
                         productId: product.id,
                         vendorId: product.vendorId,
                         vendorName: product.vendorName,
-                        vendorImage: null,
+                        vendorImage: product.vendorImage,
                         vendorInitials: product.vendorInitials,
                         productName: product.name,
                         quantity,

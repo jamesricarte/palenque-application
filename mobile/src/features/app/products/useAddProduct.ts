@@ -173,7 +173,6 @@ export const useAddProduct = () => {
                 });
 
             if (uploadError) {
-                prettyLog(uploadError);
                 throw new Error(uploadError.message);
             }
 

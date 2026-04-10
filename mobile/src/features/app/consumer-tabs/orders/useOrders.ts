@@ -163,7 +163,8 @@ export const useOrders = () => {
                             user_id,
                             users (
                                 first_name,
-                                last_name
+                                last_name,
+                                profile_image_path
                             )
                         ),
                         order_items (
@@ -193,11 +194,18 @@ export const useOrders = () => {
                         const firstName = vendorUser?.first_name ?? "Unknown";
                         const lastName = vendorUser?.last_name ?? "Vendor";
                         const vendorName = `${firstName} ${lastName}`.trim();
+                        const vendorImagePath =
+                            vendorOrder.vendors.users.profile_image_path ?? "";
+                        const vendorImage = vendorImagePath
+                            ? supabase.storage.from("users").getPublicUrl(
+                                vendorImagePath,
+                            ).data.publicUrl
+                            : null;
 
                         return {
                             id: String(vendorOrder.id),
                             vendorName: vendorName || "Unknown Vendor",
-                            vendorImage: null,
+                            vendorImage,
                             vendorInitials: getInitials(firstName, lastName),
                             items: (Array.isArray(vendorOrder?.order_items)
                                 ? vendorOrder.order_items
