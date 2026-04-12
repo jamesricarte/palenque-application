@@ -11,9 +11,9 @@ const MyStoreScreen = () => {
       <StatusBar style="dark" />
 
       {/* Header */}
-      <View className="flex-row items-center justify-between px-5 pt-2 pb-4">
+      <View className="flex-row items-center justify-between px-5 pt-3 pb-4">
         <Pressable onPress={() => {}}>
-          <Text className="text-2xl font-semibold">
+          <Text className="text-[22px] font-semibold text-brandBlack-500">
             Palenque
             <Text className="text-primary-500">Mart</Text>
           </Text>
@@ -26,6 +26,11 @@ const MyStoreScreen = () => {
         >
           <Ionicons name="cube-outline" size={26} color="#1f2933" />
         </Pressable>
+      </View>
+
+      {/* Body */}
+      <View className="items-center justify-center flex-1">
+        <Text>MyStoreScreen</Text>
       </View>
     </SafeAreaView>
   );
