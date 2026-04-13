@@ -197,7 +197,7 @@ const VendorApplicationScreen = () => {
             {/* CTA Button */}
             <Pressable
               onPress={handleStartApplication}
-              className="py-4 rounded-md bg-[#F46B45]"
+              className="py-4 rounded-md bg-primary-500"
             >
               <Text className="text-lg font-semibold text-center text-white">
                 Start Application
