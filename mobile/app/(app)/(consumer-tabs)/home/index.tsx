@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  ScrollView,
-  Pressable,
-  Image,
-} from "react-native";
+import { View, Text, ScrollView, Pressable, Image } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useHome } from "@/src/features/app/consumer-tabs/home/useHome";
 
@@ -17,14 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/src/hooks/useAuth";
 
 const HomeScreen = () => {
-  const {
-    search,
-    setSearch,
-    categories,
-    nearbyMarkets,
-    popularItems,
-    loading,
-  } = useHome();
+  const { categories, handleOpenSearch, nearbyMarkets, popularItems, loading } =
+    useHome();
 
   const { cartCount } = useCartCount();
   const { session, isLoading: authLoading } = useAuth();
@@ -60,7 +47,7 @@ const HomeScreen = () => {
 
             {/* Search */}
             <View className="mt-4">
-              <View className="relative">
+              <Pressable onPress={handleOpenSearch} className="relative">
                 <Ionicons
                   className="absolute z-10 transform -translate-y-1/2 left-4 top-1/2"
                   name="search"
@@ -68,15 +55,12 @@ const HomeScreen = () => {
                   color="#b5b5b5"
                 />
 
-                <TextInput
-                  placeholder="Search a product"
-                  placeholderTextColor="#b5b5b5"
-                  value={search}
-                  onChangeText={(v) => setSearch(v)}
-                  className="py-3 pr-4 text-base rounded-full pl-14 bg-white-600"
-                  editable={false}
-                />
-              </View>
+                <View className="py-3 pr-4 rounded-full pl-14 bg-white-600">
+                  <Text className="text-base text-white-700">
+                    Search a product
+                  </Text>
+                </View>
+              </Pressable>
             </View>
 
             {/* Categories */}
@@ -241,7 +225,7 @@ const HomeScreen = () => {
 
           {/* Search */}
           <View className="mt-4">
-            <View className="relative">
+            <Pressable onPress={handleOpenSearch} className="relative">
               <Ionicons
                 className="absolute z-10 transform -translate-y-1/2 left-4 top-1/2"
                 name="search"
@@ -249,14 +233,12 @@ const HomeScreen = () => {
                 color="#b5b5b5"
               />
 
-              <TextInput
-                placeholder="Search a product"
-                placeholderTextColor="#b5b5b5"
-                value={search}
-                onChangeText={(v) => setSearch(v)}
-                className="py-3 pr-4 text-base rounded-full pl-14 bg-white-600"
-              />
-            </View>
+              <View className="py-3 pr-4 rounded-full pl-14 bg-white-600">
+                <Text className="text-base text-white-700">
+                  Search a product
+                </Text>
+              </View>
+            </Pressable>
           </View>
 
           {/* Categories */}
