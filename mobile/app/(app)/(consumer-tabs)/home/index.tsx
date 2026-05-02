@@ -3,15 +3,22 @@ import { View, Text, ScrollView, Pressable, Image } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useHome } from "@/src/features/app/consumer-tabs/home/useHome";
 
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useCartCount } from "@/src/hooks/useCartCount";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/src/hooks/useAuth";
 
 const HomeScreen = () => {
-  const { categories, handleOpenSearch, nearbyMarkets, popularItems, loading } =
-    useHome();
+  const {
+    categories,
+    fetchHomeData,
+    handleOpenSearch,
+    hasError,
+    nearbyMarkets,
+    popularItems,
+    loading,
+  } = useHome();
 
   const { cartCount } = useCartCount();
   const { session, isLoading: authLoading } = useAuth();
@@ -208,8 +215,10 @@ const HomeScreen = () => {
 
             <Pressable
               onPress={() => router.push("/(app)/cart")}
+              disabled={hasError}
               className="relative items-center justify-center w-10 h-10"
               hitSlop={10}
+              style={{ opacity: hasError ? 0.5 : 1 }}
             >
               <Ionicons name="bag-outline" size={26} color="#1f2933" />
 
@@ -225,7 +234,12 @@ const HomeScreen = () => {
 
           {/* Search */}
           <View className="mt-4">
-            <Pressable onPress={handleOpenSearch} className="relative">
+            <Pressable
+              onPress={handleOpenSearch}
+              disabled={hasError}
+              className="relative"
+              style={{ opacity: hasError ? 0.7 : 1 }}
+            >
               <Ionicons
                 className="absolute z-10 transform -translate-y-1/2 left-4 top-1/2"
                 name="search"
@@ -241,186 +255,218 @@ const HomeScreen = () => {
             </Pressable>
           </View>
 
-          {/* Categories */}
-          <View className="mt-5">
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerClassName="pr-2"
-            >
-              <View className="flex-row gap-6">
-                {categories.map((cat) => (
-                  <Pressable
-                    key={cat.label}
-                    onPress={() => {}}
-                    className="items-center"
-                  >
-                    <View className="items-center justify-center w-16 h-16 border rounded-full border-primary-500">
-                      <View className="w-[54px] h-[54px] rounded-full overflow-hidden items-center justify-center bg-white-600">
-                        {cat.image ? (
-                          <Image
-                            source={cat.image}
-                            className="w-full h-full"
-                            resizeMode="cover"
-                          />
-                        ) : (
-                          <Ionicons
-                            name="ellipsis-horizontal"
-                            size={24}
-                            color="#1f2933"
-                          />
-                        )}
-                      </View>
-                    </View>
-
-                    <Text className="mt-2 text-sm">{cat.label}</Text>
-                  </Pressable>
-                ))}
+          {hasError ? (
+            <View className="items-center px-6 py-10 mt-8 border rounded-lg border-white-600">
+              <View className="items-center justify-center w-20 h-20 bg-red-100 rounded-full">
+                <MaterialIcons name="error-outline" size={36} color="#ef4444" />
               </View>
-            </ScrollView>
-          </View>
 
-          {/* Nearby Public Markets */}
-          <View className="mt-6">
-            <Text className="text-xl font-semibold">Nearby Public Markets</Text>
+              <Text className="mt-5 text-2xl font-semibold text-center text-brandBlack-900">
+                Something Went Wrong
+              </Text>
 
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerClassName="pt-4 pr-6"
-            >
-              <View className="flex-row gap-4">
-                {nearbyMarkets.map((m) => (
-                  <Pressable
-                    key={m.id}
-                    onPress={() => {}}
-                    className="bg-white border rounded-lg border-white-600"
-                    style={{ width: 240 }}
-                  >
-                    {/* Image */}
-                    <View className="overflow-hidden rounded-t-lg h-28">
-                      {m.image?.uri ? (
-                        <Image
-                          source={m.image}
-                          className="w-full h-full"
-                          resizeMode="cover"
-                        />
-                      ) : (
-                        <View className="items-center justify-center w-full h-full bg-white-600">
-                          <Ionicons
-                            name="image-outline"
-                            size={32}
-                            color="#9ca3af"
-                          />
-                        </View>
-                      )}
-                    </View>
+              <Text className="mt-3 text-base leading-6 text-center text-white-700">
+                Please try again later.
+              </Text>
 
-                    {/* Info */}
-                    <View className="px-4 py-3">
-                      <Text
-                        className="text-base font-semibold"
-                        numberOfLines={1}
+              <Pressable
+                onPress={fetchHomeData}
+                className="flex-row items-center justify-center px-6 py-4 mt-6 bg-red-500 rounded-full"
+              >
+                <Ionicons name="refresh" size={20} color="#ffffff" />
+                <Text className="ml-2 text-base font-semibold text-white">
+                  Retry
+                </Text>
+              </Pressable>
+            </View>
+          ) : (
+            <>
+              {/* Categories */}
+              <View className="mt-5">
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerClassName="pr-2"
+                >
+                  <View className="flex-row gap-6">
+                    {categories.map((cat) => (
+                      <Pressable
+                        key={cat.label}
+                        onPress={() => {}}
+                        className="items-center"
                       >
-                        {m.name}
-                      </Text>
+                        <View className="items-center justify-center w-16 h-16 border rounded-full border-primary-500">
+                          <View className="w-[54px] h-[54px] rounded-full overflow-hidden items-center justify-center bg-white-600">
+                            {cat.image ? (
+                              <Image
+                                source={cat.image}
+                                className="w-full h-full"
+                                resizeMode="cover"
+                              />
+                            ) : (
+                              <Ionicons
+                                name="ellipsis-horizontal"
+                                size={24}
+                                color="#1f2933"
+                              />
+                            )}
+                          </View>
+                        </View>
 
-                      <Text className="mt-1 text-sm text-white-700">
-                        {m.address}
-                      </Text>
-
-                      <Text className="mt-2 text-sm text-green-600">
-                        {m.status}
-                      </Text>
-                    </View>
-                  </Pressable>
-                ))}
+                        <Text className="mt-2 text-sm">{cat.label}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </ScrollView>
               </View>
-            </ScrollView>
-          </View>
 
-          {/* Popular Items Near You */}
-          <View className="mt-6">
-            <Text className="text-xl font-semibold">
-              Popular Items Near You
-            </Text>
+              {/* Nearby Public Markets */}
+              <View className="mt-6">
+                <Text className="text-xl font-semibold">
+                  Nearby Public Markets
+                </Text>
 
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerClassName="pt-4 pr-6"
-            >
-              <View className="flex-row gap-4">
-                {popularItems.map((item) => (
-                  <Pressable
-                    key={item.id}
-                    onPress={() => router.push(`/products/${item.id}`)}
-                    className="bg-white border rounded-lg border-white-600"
-                    style={{ width: 190 }}
-                  >
-                    {/* Image */}
-                    <View className="overflow-hidden rounded-t-lg h-28">
-                      {item.image ? (
-                        <Image
-                          source={item.image}
-                          className="w-full h-full"
-                          resizeMode="cover"
-                        />
-                      ) : (
-                        <View className="items-center justify-center w-full h-full bg-white-600">
-                          <Ionicons
-                            name="image-outline"
-                            size={32}
-                            color="#9ca3af"
-                          />
-                        </View>
-                      )}
-                    </View>
-
-                    {/* Details */}
-                    <View className="px-4 py-3">
-                      <Text
-                        className="text-base font-semibold"
-                        numberOfLines={1}
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerClassName="pt-4 pr-6"
+                >
+                  <View className="flex-row gap-4">
+                    {nearbyMarkets.map((m) => (
+                      <Pressable
+                        key={m.id}
+                        onPress={() => {}}
+                        className="bg-white border rounded-lg border-white-600"
+                        style={{ width: 240 }}
                       >
-                        {item.name}
-                      </Text>
+                        {/* Image */}
+                        <View className="overflow-hidden rounded-t-lg h-28">
+                          {m.image?.uri ? (
+                            <Image
+                              source={m.image}
+                              className="w-full h-full"
+                              resizeMode="cover"
+                            />
+                          ) : (
+                            <View className="items-center justify-center w-full h-full bg-white-600">
+                              <Ionicons
+                                name="image-outline"
+                                size={32}
+                                color="#9ca3af"
+                              />
+                            </View>
+                          )}
+                        </View>
 
-                      <View className="flex-row items-center gap-2 mt-2">
-                        {item.vendorAvatar ? (
-                          <Image
-                            source={item.vendorAvatar}
-                            className="w-5 h-5 rounded-full"
-                            resizeMode="cover"
-                          />
-                        ) : (
-                          <View className="items-center justify-center w-5 h-5 rounded-full bg-brandBlack-50">
-                            <Text className="text-[10px] font-semibold text-black">
-                              {item.vendorInitials}
+                        {/* Info */}
+                        <View className="px-4 py-3">
+                          <Text
+                            className="text-base font-semibold"
+                            numberOfLines={1}
+                          >
+                            {m.name}
+                          </Text>
+
+                          <Text className="mt-1 text-sm text-white-700">
+                            {m.address}
+                          </Text>
+
+                          <Text className="mt-2 text-sm text-green-600">
+                            {m.status}
+                          </Text>
+                        </View>
+                      </Pressable>
+                    ))}
+                  </View>
+                </ScrollView>
+              </View>
+
+              {/* Popular Items Near You */}
+              <View className="mt-6">
+                <Text className="text-xl font-semibold">
+                  Popular Items Near You
+                </Text>
+
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerClassName="pt-4 pr-6"
+                >
+                  <View className="flex-row gap-4">
+                    {popularItems.map((item) => (
+                      <Pressable
+                        key={item.id}
+                        onPress={() => router.push(`/products/${item.id}`)}
+                        className="bg-white border rounded-lg border-white-600"
+                        style={{ width: 190 }}
+                      >
+                        {/* Image */}
+                        <View className="overflow-hidden rounded-t-lg h-28">
+                          {item.image ? (
+                            <Image
+                              source={item.image}
+                              className="w-full h-full"
+                              resizeMode="cover"
+                            />
+                          ) : (
+                            <View className="items-center justify-center w-full h-full bg-white-600">
+                              <Ionicons
+                                name="image-outline"
+                                size={32}
+                                color="#9ca3af"
+                              />
+                            </View>
+                          )}
+                        </View>
+
+                        {/* Details */}
+                        <View className="px-4 py-3">
+                          <Text
+                            className="text-base font-semibold"
+                            numberOfLines={1}
+                          >
+                            {item.name}
+                          </Text>
+
+                          <View className="flex-row items-center gap-2 mt-2">
+                            {item.vendorAvatar ? (
+                              <Image
+                                source={item.vendorAvatar}
+                                className="w-5 h-5 rounded-full"
+                                resizeMode="cover"
+                              />
+                            ) : (
+                              <View className="items-center justify-center w-5 h-5 rounded-full bg-brandBlack-50">
+                                <Text className="text-[10px] font-semibold text-black">
+                                  {item.vendorInitials}
+                                </Text>
+                              </View>
+                            )}
+
+                            <Text className="text-sm text-white-700">
+                              {item.vendor}
                             </Text>
                           </View>
-                        )}
 
-                        <Text className="text-sm text-white-700">
-                          {item.vendor}
-                        </Text>
-                      </View>
+                          <View className="mt-2">
+                            <View className="self-start px-2 py-1 bg-green-700 rounded">
+                              <Text className="text-xs text-white">
+                                {item.tag}
+                              </Text>
+                            </View>
+                          </View>
 
-                      <View className="mt-2">
-                        <View className="self-start px-2 py-1 bg-green-700 rounded">
-                          <Text className="text-xs text-white">{item.tag}</Text>
+                          <Text className="mt-2 text-base font-semibold text-primary-500">
+                            {item.price}
+                          </Text>
                         </View>
-                      </View>
-
-                      <Text className="mt-2 text-base font-semibold text-primary-500">
-                        {item.price}
-                      </Text>
-                    </View>
-                  </Pressable>
-                ))}
+                      </Pressable>
+                    ))}
+                  </View>
+                </ScrollView>
               </View>
-            </ScrollView>
-          </View>
+            </>
+          )}
         </View>
       </ScrollView>
 
