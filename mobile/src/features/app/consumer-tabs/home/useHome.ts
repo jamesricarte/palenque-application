@@ -49,6 +49,20 @@ export const useHome = () => {
     router.push("/(app)/search");
   }, []);
 
+  const handleOpenCategory = useCallback((categoryName: string) => {
+    router.push({
+      pathname: "/(app)/categories/[categoryName]",
+      params: { categoryName },
+    });
+  }, []);
+
+  const handleOpenMarket = useCallback((marketId: string) => {
+    router.push({
+      pathname: "/(app)/public-markets/[marketId]",
+      params: { marketId },
+    });
+  }, []);
+
   const formatDistance = (distanceInKm: number) => {
     if (distanceInKm < 1) {
       return `${Math.round(distanceInKm * 1000)} m away`;
@@ -383,6 +397,8 @@ export const useHome = () => {
   return {
     categories,
     fetchHomeData,
+    handleOpenCategory,
+    handleOpenMarket,
     handleOpenSearch,
     hasError,
     nearbyMarkets,

@@ -13,6 +13,8 @@ const HomeScreen = () => {
   const {
     categories,
     fetchHomeData,
+    handleOpenCategory,
+    handleOpenMarket,
     handleOpenSearch,
     hasError,
     nearbyMarkets,
@@ -292,7 +294,7 @@ const HomeScreen = () => {
                     {categories.map((cat) => (
                       <Pressable
                         key={cat.label}
-                        onPress={() => {}}
+                        onPress={() => handleOpenCategory(cat.label)}
                         className="items-center"
                       >
                         <View className="items-center justify-center w-16 h-16 border rounded-full border-primary-500">
@@ -335,7 +337,7 @@ const HomeScreen = () => {
                     {nearbyMarkets.map((m) => (
                       <Pressable
                         key={m.id}
-                        onPress={() => {}}
+                        onPress={() => handleOpenMarket(m.id)}
                         className="bg-white border rounded-lg border-white-600"
                         style={{ width: 240 }}
                       >
