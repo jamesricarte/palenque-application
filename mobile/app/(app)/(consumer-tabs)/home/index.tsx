@@ -8,6 +8,7 @@ import { router } from "expo-router";
 import { useCartCount } from "@/src/hooks/useCartCount";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/src/hooks/useAuth";
+import HomeLoadingSkeleton from "@/src/features/app/consumer-tabs/home/components/HomeLoadingSkeleton";
 
 const HomeScreen = () => {
   const {
@@ -28,176 +29,18 @@ const HomeScreen = () => {
 
   if (loading)
     return (
-      <SafeAreaView className="flex-1 bg-white">
-        <StatusBar style="dark" />
-
-        <ScrollView
-          className="flex-1"
-          contentContainerClassName={`pt-3 ${!authLoading && !isLoggedIn ? "pb-40" : "pb-28"}`}
-          showsVerticalScrollIndicator={false}
-        >
-          <View className="mx-6">
-            {/* Top Bar */}
-            <View className="flex-row items-center justify-between">
-              <Pressable onPress={() => {}}>
-                <Text className="text-2xl font-semibold">
-                  Palenque
-                  <Text className="text-primary-500">Mart</Text>
-                </Text>
-              </Pressable>
-
-              <Pressable
-                className="relative items-center justify-center w-10 h-10"
-                hitSlop={10}
-              >
-                <Ionicons name="bag-outline" size={26} color="#1f2933" />
-              </Pressable>
-            </View>
-
-            {/* Search */}
-            <View className="mt-4">
-              <Pressable onPress={handleOpenSearch} className="relative">
-                <Ionicons
-                  className="absolute z-10 transform -translate-y-1/2 left-4 top-1/2"
-                  name="search"
-                  size={28}
-                  color="#b5b5b5"
-                />
-
-                <View className="py-3 pr-4 rounded-full pl-14 bg-white-600">
-                  <Text className="text-base text-white-700">
-                    Search a product
-                  </Text>
-                </View>
-              </Pressable>
-            </View>
-
-            {/* Categories */}
-            <View className="mt-5">
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerClassName="pr-2"
-              >
-                <View className="flex-row gap-6">
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <View key={index} className="items-center">
-                      <View className="items-center justify-center w-16 h-16 border rounded-full border-primary-500">
-                        <View className="w-[54px] h-[54px] rounded-full bg-white-600" />
-                      </View>
-
-                      <View className="w-12 h-4 mt-2 rounded-full bg-white-600" />
-                    </View>
-                  ))}
-                </View>
-              </ScrollView>
-            </View>
-
-            {/* Nearby Public Markets */}
-            <View className="mt-6">
-              <View className="w-48 rounded-full h-7 bg-white-600" />
-
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerClassName="pt-4 pr-6"
-              >
-                <View className="flex-row gap-4">
-                  {Array.from({ length: 2 }).map((_, index) => (
-                    <View
-                      key={index}
-                      className="bg-white border rounded-lg border-white-600"
-                      style={{ width: 240 }}
-                    >
-                      {/* Image */}
-                      <View className="rounded-t-lg h-28 bg-white-600" />
-
-                      {/* Info */}
-                      <View className="px-4 py-3">
-                        <View className="w-32 h-5 rounded-full bg-white-600" />
-
-                        <View className="w-40 h-4 mt-2 rounded-full bg-white-600" />
-
-                        <View className="w-20 h-4 mt-3 bg-green-100 rounded-full" />
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              </ScrollView>
-            </View>
-
-            {/* Popular Items Near You */}
-            <View className="mt-6">
-              <View className="rounded-full w-44 h-7 bg-white-600" />
-
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerClassName="pt-4 pr-6"
-              >
-                <View className="flex-row gap-4">
-                  {Array.from({ length: 2 }).map((_, index) => (
-                    <View
-                      key={index}
-                      className="bg-white border rounded-lg border-white-600"
-                      style={{ width: 190 }}
-                    >
-                      {/* Image */}
-                      <View className="rounded-t-lg h-28 bg-white-600" />
-
-                      {/* Details */}
-                      <View className="px-4 py-3">
-                        <View className="h-5 rounded-full w-28 bg-white-600" />
-
-                        <View className="flex-row items-center gap-2 mt-2">
-                          <View className="w-5 h-5 rounded-full bg-white-600" />
-                          <View className="w-20 h-4 rounded-full bg-white-600" />
-                        </View>
-
-                        <View className="mt-2">
-                          <View className="self-start px-2 py-1 rounded bg-white-600">
-                            <View className="w-10 h-3 rounded-full bg-white-700" />
-                          </View>
-                        </View>
-
-                        <View className="w-16 h-5 mt-2 rounded-full bg-primary-100" />
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              </ScrollView>
-            </View>
-          </View>
-        </ScrollView>
-
-        {!authLoading && !isLoggedIn && (
-          <View className="px-5 pt-5 pb-6 bg-primary-500">
-            <View className="flex-row gap-4">
-              <Pressable
-                onPress={() => router.push("/(auth)/login")}
-                className="items-center justify-center flex-1 py-4 bg-white border border-white rounded-lg"
-              >
-                <Text className="text-lg font-semibold text-primary-500">
-                  Login
-                </Text>
-              </Pressable>
-
-              <Pressable
-                onPress={() => router.push("/(auth)/register")}
-                className="items-center justify-center flex-1 py-4 border border-white rounded-lg"
-              >
-                <Text className="text-lg font-semibold text-white">
-                  Register
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        )}
-      </SafeAreaView>
+      <HomeLoadingSkeleton
+        authLoading={authLoading}
+        isLoggedIn={isLoggedIn}
+        handleOpenSearch={handleOpenSearch}
+      />
     );
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView
+      edges={isLoggedIn ? ["top"] : ["top", "bottom"]}
+      className="flex-1 bg-white"
+    >
       <StatusBar style="dark" />
 
       <ScrollView
@@ -205,9 +48,9 @@ const HomeScreen = () => {
         contentContainerClassName={`pt-3 ${!authLoading && !isLoggedIn ? "pb-40" : "pb-28"}`}
         showsVerticalScrollIndicator={false}
       >
-        <View className="mx-6">
+        <View>
           {/* Top Bar */}
-          <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center justify-between px-6">
             <Pressable onPress={() => {}}>
               <Text className="text-2xl font-semibold">
                 Palenque
@@ -235,7 +78,7 @@ const HomeScreen = () => {
           </View>
 
           {/* Search */}
-          <View className="mt-4">
+          <View className="px-6 mt-4">
             <Pressable
               onPress={handleOpenSearch}
               disabled={hasError}
@@ -288,14 +131,14 @@ const HomeScreen = () => {
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  contentContainerClassName="pr-2"
+                  contentContainerClassName="pr-6"
                 >
                   <View className="flex-row gap-6">
-                    {categories.map((cat) => (
+                    {categories.map((cat, index) => (
                       <Pressable
                         key={cat.label}
                         onPress={() => handleOpenCategory(cat.label)}
-                        className="items-center"
+                        className={`items-center ${index === 0 ? "pl-6" : ""}`}
                       >
                         <View className="items-center justify-center w-16 h-16 border rounded-full border-primary-500">
                           <View className="w-[54px] h-[54px] rounded-full overflow-hidden items-center justify-center bg-white-600">
@@ -324,7 +167,7 @@ const HomeScreen = () => {
 
               {/* Nearby Public Markets */}
               <View className="mt-6">
-                <Text className="text-xl font-semibold">
+                <Text className="pl-6 text-xl font-semibold">
                   Nearby Public Markets
                 </Text>
 
@@ -334,11 +177,11 @@ const HomeScreen = () => {
                   contentContainerClassName="pt-4 pr-6"
                 >
                   <View className="flex-row gap-4">
-                    {nearbyMarkets.map((m) => (
+                    {nearbyMarkets.map((m, index) => (
                       <Pressable
                         key={m.id}
                         onPress={() => handleOpenMarket(m.id)}
-                        className="bg-white border rounded-lg border-white-600"
+                        className={`bg-white border rounded-lg border-white-600 ${index === 0 ? "ml-6" : ""}`}
                         style={{ width: 240 }}
                       >
                         {/* Image */}
@@ -385,7 +228,7 @@ const HomeScreen = () => {
 
               {/* Popular Items Near You */}
               <View className="mt-6">
-                <Text className="text-xl font-semibold">
+                <Text className="pl-6 text-xl font-semibold">
                   Popular Items Near You
                 </Text>
 
@@ -395,11 +238,11 @@ const HomeScreen = () => {
                   contentContainerClassName="pt-4 pr-6"
                 >
                   <View className="flex-row gap-4">
-                    {popularItems.map((item) => (
+                    {popularItems.map((item, index) => (
                       <Pressable
                         key={item.id}
                         onPress={() => router.push(`/products/${item.id}`)}
-                        className="bg-white border rounded-lg border-white-600"
+                        className={`bg-white border rounded-lg border-white-600 ${index === 0 ? "ml-6" : ""}`}
                         style={{ width: 190 }}
                       >
                         {/* Image */}

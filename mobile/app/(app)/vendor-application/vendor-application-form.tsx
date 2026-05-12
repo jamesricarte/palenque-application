@@ -12,7 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { CustomDropdown } from "@/src/components/custom-dropdown";
+import { CustomDropdown } from "@/src/components/ui/custom-dropdown";
 import { useVendorApplicationForm } from "@/src/features/app/vendor-application/useVendorApplicationForm";
 
 const VendorApplicationFormScreen = () => {
