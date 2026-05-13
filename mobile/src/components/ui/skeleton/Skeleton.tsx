@@ -1,5 +1,5 @@
-import { View, type DimensionValue } from "react-native";
-import React, { useEffect } from "react";
+import { View, type DimensionValue, LayoutChangeEvent } from "react-native";
+import React, { useEffect, useState } from "react";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -11,7 +11,7 @@ import { LinearGradient } from "expo-linear-gradient";
 type SkeletonProps = {
   width: DimensionValue;
   height: DimensionValue;
-  borderRadius: number;
+  borderRadius?: number;
 };
 
 export default function Skeleton({
@@ -19,41 +19,89 @@ export default function Skeleton({
   height,
   borderRadius = 8,
 }: SkeletonProps) {
-  const translateX = useSharedValue(-200);
+  const translateX = useSharedValue(-150);
+
+  const opacity = useSharedValue(1);
+
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  const shimmerWidth = 120;
 
   useEffect(() => {
+    // Pulse animation
+    opacity.value = withRepeat(
+      withTiming(0.6, {
+        duration: 600,
+      }),
+      -1,
+      true,
+    );
+  }, []);
+
+  useEffect(() => {
+    if (containerWidth === 0) return;
+
+    // Shimmer animation
     translateX.value = withRepeat(
-      withTiming(400, {
+      withTiming(containerWidth, {
         duration: 1200,
       }),
       -1,
       false,
     );
-  }, []);
+  }, [containerWidth]);
 
-  const animatedStyle = useAnimatedStyle(() => ({
+  const handleLayout = (event: LayoutChangeEvent) => {
+    setContainerWidth(event.nativeEvent.layout.width);
+  };
+
+  const containerAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  const shimmerAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
   }));
 
   return (
-    <View
+    <Animated.View
+      onLayout={handleLayout}
       style={[
-        { backgroundColor: "#e8e8e8", overflow: "hidden" },
-        { width, height, borderRadius },
+        {
+          backgroundColor: "#e8e8e8",
+          overflow: "hidden",
+        },
+        {
+          width,
+          height,
+          borderRadius,
+        },
+        containerAnimatedStyle,
       ]}
     >
-      <Animated.View style={[{ width: "100%", height: "100%" }, animatedStyle]}>
+      <Animated.View
+        style={[
+          {
+            width: shimmerWidth,
+            height: "100%",
+          },
+          shimmerAnimatedStyle,
+        ]}
+      >
         <LinearGradient
           colors={[
             "rgba(255,255,255,0)",
-            "rgba(255,255,255,0.5)",
+            "rgba(255,255,255,0.45)",
             "rgba(255,255,255,0)",
           ]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={{ width: "40%", height: "100%" }}
+          style={{
+            width: "100%",
+            height: "100%",
+          }}
         />
       </Animated.View>
-    </View>
+    </Animated.View>
   );
 }

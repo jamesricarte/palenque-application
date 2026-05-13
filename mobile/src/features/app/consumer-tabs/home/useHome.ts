@@ -49,6 +49,12 @@ export const useHome = () => {
     router.push("/(app)/search");
   }, []);
 
+  const handleOpenCart = useCallback(() => {
+    if (loading) return;
+
+    router.push("/(app)/cart");
+  }, [loading]);
+
   const handleOpenCategory = useCallback((categoryName: string) => {
     router.push({
       pathname: "/(app)/categories/[categoryName]",
@@ -398,11 +404,13 @@ export const useHome = () => {
     categories,
     fetchHomeData,
     handleOpenCategory,
+    handleOpenCart,
     handleOpenMarket,
     handleOpenSearch,
     hasError,
     nearbyMarkets,
     popularItems,
+    shouldShowCartCount: !loading,
     loading,
   };
 };

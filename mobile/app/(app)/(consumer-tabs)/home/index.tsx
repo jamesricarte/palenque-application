@@ -15,26 +15,19 @@ const HomeScreen = () => {
     categories,
     fetchHomeData,
     handleOpenCategory,
+    handleOpenCart,
     handleOpenMarket,
     handleOpenSearch,
     hasError,
     nearbyMarkets,
     popularItems,
+    shouldShowCartCount,
     loading,
   } = useHome();
 
   const { cartCount } = useCartCount();
   const { session, isLoading: authLoading } = useAuth();
   const isLoggedIn = !!session;
-
-  if (loading)
-    return (
-      <HomeLoadingSkeleton
-        authLoading={authLoading}
-        isLoggedIn={isLoggedIn}
-        handleOpenSearch={handleOpenSearch}
-      />
-    );
 
   return (
     <SafeAreaView
@@ -59,15 +52,14 @@ const HomeScreen = () => {
             </Pressable>
 
             <Pressable
-              onPress={() => router.push("/(app)/cart")}
-              disabled={hasError}
+              onPress={handleOpenCart}
+              disabled={hasError || loading}
               className="relative items-center justify-center w-10 h-10"
               hitSlop={10}
-              style={{ opacity: hasError ? 0.5 : 1 }}
             >
               <Ionicons name="bag-outline" size={26} color="#1f2933" />
 
-              {cartCount > 0 && (
+              {shouldShowCartCount && cartCount > 0 && (
                 <View className="absolute items-center justify-center min-w-[20px] h-5 px-1 rounded-full -top-1 -right-1 bg-primary-500">
                   <Text className="text-[11px] font-semibold text-white">
                     {cartCount > 99 ? "99+" : cartCount}
@@ -124,6 +116,8 @@ const HomeScreen = () => {
                 </Text>
               </Pressable>
             </View>
+          ) : loading ? (
+            <HomeLoadingSkeleton />
           ) : (
             <>
               {/* Categories */}
