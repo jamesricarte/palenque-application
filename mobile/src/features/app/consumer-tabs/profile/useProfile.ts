@@ -1,52 +1,55 @@
-import { useCallback, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/src/config/supabaseClient";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 
 import { useAuth } from "@/src/hooks/useAuth";
 
 export const useProfile = () => {
-    const { session, user, logout } = useAuth();
+    const { session, user, logout, isLoading: authLoading } = useAuth();
 
     const router = useRouter();
 
     const [hasApprovedVendorApplication, setHasApprovedVendorApplication] =
         useState(false);
+    const [loading, setLoading] = useState(true);
 
     const userName = useMemo(() => {
         return `${user?.first_name || ""} ${user?.last_name || ""}`;
     }, [user]);
 
-    useFocusEffect(
-        useCallback(() => {
-            const checkVendorApplication = async () => {
-                try {
-                    const userId = session?.user.id;
+    useEffect(() => {
+        const checkVendorApplication = async () => {
+            setLoading(true);
 
-                    if (!userId) {
-                        setHasApprovedVendorApplication(false);
-                        return;
-                    }
+            try {
+                const userId = session?.user.id;
 
-                    const { data, error } = await supabase
-                        .from("vendor_applications")
-                        .select("status")
-                        .eq("user_id", userId)
-                        .maybeSingle();
-
-                    if (error) throw new Error(error.message);
-
-                    setHasApprovedVendorApplication(
-                        data?.status === "approved",
-                    );
-                } catch (error) {
-                    console.error(error);
+                if (!userId) {
                     setHasApprovedVendorApplication(false);
+                    return;
                 }
-            };
 
-            checkVendorApplication();
-        }, [session?.user?.id, user]),
-    );
+                const { data, error } = await supabase
+                    .from("vendor_applications")
+                    .select("status")
+                    .eq("user_id", userId)
+                    .maybeSingle();
+
+                if (error) throw new Error(error.message);
+
+                setHasApprovedVendorApplication(
+                    data?.status === "approved",
+                );
+            } catch (error) {
+                console.error(error);
+                setHasApprovedVendorApplication(false);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        checkVendorApplication();
+    }, [session?.user?.id, user]);
 
     const onPressCart = () => {
         router.push("/(app)/cart");
@@ -75,6 +78,7 @@ export const useProfile = () => {
     return {
         userName,
         hasApprovedVendorApplication,
+        loading: authLoading || loading,
         onPressCart,
         onPressViewProfile,
         onPressMyAddress,

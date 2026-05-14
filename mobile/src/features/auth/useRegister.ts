@@ -38,8 +38,7 @@ export function useRegister() {
             throw new ValidationError("Invalid country calling code.");
         }
         if (p.startsWith("0")) {
-            p = p.replace(/^0+/, "");
-            setPhone(p);
+            p = p.replace(/^0/, "");
         }
         if (p.length !== 10) throw new ValidationError("Invalid phone number.");
 

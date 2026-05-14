@@ -12,6 +12,7 @@ import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 
 import { useCart } from "@/src/features/app/cart/useCart";
+import CartLoadingSkeleton from "@/src/features/app/cart/components/CartLoadingSkeleton";
 
 const CartScreen = () => {
   const {
@@ -31,15 +32,6 @@ const CartScreen = () => {
     handleProceedToCheckout,
   } = useCart();
 
-  if (loading) {
-    return (
-      <SafeAreaView className="items-center justify-center flex-1 bg-white">
-        <StatusBar style="dark" />
-        <ActivityIndicator size="large" color="#F46B45" />
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar style="dark" />
@@ -53,7 +45,9 @@ const CartScreen = () => {
         <Text className="text-[22px] font-medium">My Cart ({cartCount})</Text>
       </View>
 
-      {cartGroups.length === 0 ? (
+      {loading ? (
+        <CartLoadingSkeleton />
+      ) : cartGroups.length === 0 ? (
         <View className="items-center justify-center flex-1 px-5">
           <Text className="mb-2 text-[18px] text-center text-white-700">
             {isLoggedIn

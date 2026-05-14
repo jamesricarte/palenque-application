@@ -43,8 +43,7 @@ export function useLogin() {
 
         // If user typed "09xxxxxxxxx", remove leading zeros
         if (p.startsWith("0")) {
-            p = p.replace(/^0+/, "");
-            setPhone(p);
+            p = p.replace(/^0/, "");
         }
 
         // PH numbers without country code are usually 10 digits (9xxxxxxxxx)

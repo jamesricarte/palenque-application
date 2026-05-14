@@ -14,6 +14,8 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { useSearchOverlay } from "@/src/features/app/search/useSearchOverlay";
 import { router } from "expo-router";
+import SearchResultsLoadingSkeleton from "@/src/features/app/search/components/SearchResultsLoadingSkeleton";
+import SearchSuggestionsLoadingSkeleton from "@/src/features/app/search/components/SearchSuggestionsLoadingSkeleton";
 
 const SearchOverlayScreen = () => {
   const {
@@ -119,9 +121,7 @@ const SearchOverlayScreen = () => {
             </View>
 
             {isSearchLoading ? (
-              <View className="items-center justify-center py-16">
-                <ActivityIndicator size="large" color="black" />
-              </View>
+              <SearchResultsLoadingSkeleton />
             ) : searchResults.length === 0 ? (
               <View className="items-center justify-center py-16">
                 <Text className="text-base text-center text-white-700">
@@ -258,9 +258,7 @@ const SearchOverlayScreen = () => {
 
               <View className="mt-4">
                 {isSuggestionsLoading ? (
-                  <View className="items-center justify-center py-10">
-                    <ActivityIndicator size="small" color="black" />
-                  </View>
+                  <SearchSuggestionsLoadingSkeleton />
                 ) : searchSuggestions.length === 0 ? (
                   <Text className="text-base text-white-700">
                     No suggestions found.

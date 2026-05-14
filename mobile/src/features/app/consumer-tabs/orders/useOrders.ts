@@ -1,5 +1,5 @@
-import { router, useFocusEffect } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { router } from "expo-router";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/src/config/supabaseClient";
 import { useAuth } from "@/src/hooks/useAuth";
 import { getInitials } from "@/src/utils/getInitials";
@@ -272,15 +272,15 @@ export const useOrders = () => {
             console.error("Error fetching orders:", error);
             setOrders([]);
         } finally {
-            setLoading(false);
+            setTimeout(() => {
+                setLoading(false);
+            }, 1000);
         }
     }, [session?.user.id]);
 
-    useFocusEffect(
-        useCallback(() => {
-            fetchOrders();
-        }, [fetchOrders]),
-    );
+    useEffect(() => {
+        fetchOrders();
+    }, []);
 
     const filteredOrders = useMemo(() => {
         if (activeTab === "All") return orders;

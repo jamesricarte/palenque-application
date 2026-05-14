@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useProductDetails } from "@/src/features/app/products/useProductDetails";
 import { useCartCount } from "@/src/hooks/useCartCount";
 import { router } from "expo-router";
+import ProductDetailsLoadingSkeleton from "@/src/features/app/products/components/ProductDetailsLoadingSkeleton";
 
 const ProductDetailsScreen = () => {
   const { cartCount, fetchCartCount } = useCartCount();
@@ -33,47 +34,6 @@ const ProductDetailsScreen = () => {
     handleConfirmQuantityAction,
     isConfirming,
   } = useProductDetails(fetchCartCount);
-
-  if (loading) {
-    return (
-      <SafeAreaView className="items-center justify-center flex-1 bg-white">
-        <StatusBar style="dark" />
-        <ActivityIndicator size="large" color="#F46B45" />
-      </SafeAreaView>
-    );
-  }
-
-  if (!product) {
-    return (
-      <SafeAreaView className="flex-1 bg-white">
-        <StatusBar style="dark" />
-
-        {/* Header */}
-        <View className="flex-row items-center justify-between px-5 pt-2 pb-5 border-b border-white-600">
-          <View className="flex-row items-center">
-            <Pressable onPress={handleBack} className="mr-3" hitSlop={10}>
-              <Ionicons name="arrow-back" size={24} color="#111111" />
-            </Pressable>
-
-            <Text className="text-[22px] font-semibold">Product Details</Text>
-          </View>
-
-          <Pressable
-            className="items-center justify-center w-10 h-10"
-            hitSlop={10}
-          >
-            <Ionicons name="bag-outline" size={26} color="#1f2933" />
-          </Pressable>
-        </View>
-
-        <View className="items-center justify-center flex-1 px-10">
-          <Text className="text-lg text-center text-white-700">
-            Product not found.
-          </Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -107,72 +67,86 @@ const ProductDetailsScreen = () => {
       </View>
 
       <View className="flex-1">
-        <Image
-          source={{ uri: product.image }}
-          className="w-full h-[250px]"
-          resizeMode="cover"
-        />
+        {loading ? (
+          <ProductDetailsLoadingSkeleton />
+        ) : product ? (
+          <>
+            <Image
+              source={{ uri: product.image }}
+              className="w-full h-[250px]"
+              resizeMode="cover"
+            />
 
-        <View className="flex-1 px-5 py-4">
-          <View className="flex-row items-start justify-between mb-3">
-            <Text className="flex-1 mr-4 text-[22px] font-semibold text-black-500">
-              {product.name}
-            </Text>
+            <View className="flex-1 px-5 py-4">
+              <View className="flex-row items-start justify-between mb-3">
+                <Text className="flex-1 mr-4 text-[22px] font-semibold text-black-500">
+                  {product.name}
+                </Text>
 
-            <Text className="text-[18px] font-medium text-primary-500">
-              {product.price}
-            </Text>
-          </View>
+                <Text className="text-[18px] font-medium text-primary-500">
+                  {product.price}
+                </Text>
+              </View>
 
-          <View className="self-start px-3 py-1 bg-green-700 rounded mb-7">
-            <Text className="text-[12px] text-white">{product.category}</Text>
-          </View>
+              <View className="self-start px-3 py-1 bg-green-700 rounded mb-7">
+                <Text className="text-[12px] text-white">
+                  {product.category}
+                </Text>
+              </View>
 
-          <View>
-            <Text className="mb-3 text-xl font-medium text-black-500">
-              Vendor Information
-            </Text>
+              <View>
+                <Text className="mb-3 text-xl font-medium text-black-500">
+                  Vendor Information
+                </Text>
 
-            <View className="flex-row gap-2">
-              {product.vendorImage ? (
-                <Image
-                  source={{ uri: product.vendorImage }}
-                  className="w-8 h-8 rounded-full"
-                  resizeMode="cover"
-                />
-              ) : (
-                <View className="items-center justify-center w-8 h-8 rounded-full bg-brandBlack-50">
-                  <Text className="text-[12px] font-semibold text-black-500">
-                    {product.vendorInitials}
+                <View className="flex-row gap-2">
+                  {product.vendorImage ? (
+                    <Image
+                      source={{ uri: product.vendorImage }}
+                      className="w-8 h-8 rounded-full"
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View className="items-center justify-center w-8 h-8 rounded-full bg-brandBlack-50">
+                      <Text className="text-[12px] font-semibold text-black-500">
+                        {product.vendorInitials}
+                      </Text>
+                    </View>
+                  )}
+
+                  <Text className="text-lg text-black-400">
+                    {product.vendorName}
                   </Text>
                 </View>
-              )}
-
-              <Text className="text-lg text-black-400">
-                {product.vendorName}
-              </Text>
+              </View>
             </View>
-          </View>
-        </View>
 
-        {/* Bottom Buttons */}
-        <View className="flex-row gap-3 px-5 py-5 bg-primary-500">
-          <Pressable
-            onPress={() => openQuantityModal("cart")}
-            className="items-center justify-center flex-1 py-4 bg-white rounded-md"
-          >
-            <Text className="text-lg font-medium text-primary-500">
-              Add to Cart
+            {/* Bottom Buttons */}
+            <View className="flex-row gap-3 px-5 py-5 bg-primary-500">
+              <Pressable
+                onPress={() => openQuantityModal("cart")}
+                className="items-center justify-center flex-1 py-4 bg-white rounded-md"
+              >
+                <Text className="text-lg font-medium text-primary-500">
+                  Add to Cart
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={() => openQuantityModal("buy")}
+                className="items-center justify-center flex-1 py-4 border border-white rounded-md"
+              >
+                <Text className="text-lg font-medium text-white">Buy Now</Text>
+              </Pressable>
+            </View>
+          </>
+        ) : (
+          <View className="items-center justify-center flex-1 px-10">
+            <Text className="text-lg text-center text-white-700">
+              Product not found.
             </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => openQuantityModal("buy")}
-            className="items-center justify-center flex-1 py-4 border border-white rounded-md"
-          >
-            <Text className="text-lg font-medium text-white">Buy Now</Text>
-          </Pressable>
-        </View>
+          </View>
+        )}
       </View>
 
       <Modal

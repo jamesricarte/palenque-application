@@ -1,17 +1,11 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  Image,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, Pressable, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { useOrders } from "@/src/features/app/consumer-tabs/orders/useOrders";
 import CashIcon from "@/src/assets/cashIcon.png";
+import OrdersLoadingSkeleton from "@/src/features/app/consumer-tabs/orders/components/OrdersLoadingSkeleton";
 
 const statusLabelMap = {
   pending: "Pending",
@@ -29,6 +23,39 @@ const statusClassNameMap = {
   ready: "bg-secondary-500",
   completed: "bg-brandBlack-400",
   cancelled: "bg-red-500",
+} as const;
+
+const emptyStateCopyMap = {
+  All: {
+    title: "No market orders yet",
+    description:
+      "Fresh finds from your favorite wet market vendors will appear here once you place an order.",
+  },
+  Pending: {
+    title: "No pending orders right now",
+    description:
+      "You have no market orders waiting to be confirmed or prepared at the moment.",
+  },
+  Preparing: {
+    title: "No orders being prepared",
+    description:
+      "Your fresh picks are not being packed just yet. Check again after your next order is confirmed.",
+  },
+  "On the Way": {
+    title: "No orders on the way",
+    description:
+      "There are no wet market orders currently out for delivery to your doorstep.",
+  },
+  Completed: {
+    title: "No completed orders yet",
+    description:
+      "Finished orders from your market runs will show up here after they have been delivered.",
+  },
+  Cancelled: {
+    title: "No cancelled orders",
+    description:
+      "Good news, you do not have any cancelled wet market orders for this filter.",
+  },
 } as const;
 
 const VendorOrdersScreen = () => {
@@ -49,6 +76,8 @@ const VendorOrdersScreen = () => {
         : [...prev, orderId],
     );
   };
+  const emptyStateCopy =
+    emptyStateCopyMap[activeTab as keyof typeof emptyStateCopyMap];
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -100,12 +129,20 @@ const VendorOrdersScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         {loading ? (
-          <View className="items-center justify-center py-12">
-            <ActivityIndicator size="large" color="#f16b44" />
-          </View>
+          <OrdersLoadingSkeleton />
         ) : orders.length === 0 ? (
-          <View className="items-center justify-center py-12">
-            <Text className="text-base text-white-700">No orders found.</Text>
+          <View className="items-center justify-center px-6 py-16">
+            <View className="items-center justify-center w-20 h-20 rounded-full bg-[#fef0ec]">
+              <Ionicons name="basket-outline" size={34} color="#f16b44" />
+            </View>
+
+            <Text className="mt-5 text-xl font-semibold text-center text-brandBlack-900">
+              {emptyStateCopy.title}
+            </Text>
+
+            <Text className="mt-3 text-base leading-6 text-center text-white-700">
+              {emptyStateCopy.description}
+            </Text>
           </View>
         ) : (
           <View className="gap-4">

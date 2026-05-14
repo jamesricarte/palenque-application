@@ -1,38 +1,18 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-
-const notificationTabs = ["All", "Unread"] as const;
-
-const notifications = [
-  {
-    id: "1",
-    title: "Order Update",
-    description: "Your order from Vendor Name is now being prepared.",
-    timeAgo: "2 minutes ago",
-    isRead: false,
-  },
-  {
-    id: "2",
-    title: "Order Completed",
-    description: "Your order from Vendor Name has been successfully delivered.",
-    timeAgo: "2 days ago",
-    isRead: true,
-  },
-] as const;
+import NotificationsLoadingSkeleton from "@/src/features/app/consumer-tabs/notifications/components/NotificationsLoadingSkeleton";
+import { useNotifications } from "@/src/features/app/consumer-tabs/notifications/useNotifications";
 
 const NotificationsScreen = () => {
-  const [activeTab, setActiveTab] =
-    useState<(typeof notificationTabs)[number]>("All");
-
-  const filteredNotifications = useMemo(() => {
-    if (activeTab === "Unread") {
-      return notifications.filter((notification) => !notification.isRead);
-    }
-
-    return notifications;
-  }, [activeTab]);
+  const {
+    activeTab,
+    setActiveTab,
+    notificationTabs,
+    filteredNotifications,
+    loading,
+  } = useNotifications();
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -77,7 +57,9 @@ const NotificationsScreen = () => {
         contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
       >
-        {filteredNotifications.length === 0 ? (
+        {loading ? (
+          <NotificationsLoadingSkeleton />
+        ) : filteredNotifications.length === 0 ? (
           <View className="items-center justify-center px-10 py-16">
             <Text className="text-base text-center text-white-700">
               No unread notifications right now.
