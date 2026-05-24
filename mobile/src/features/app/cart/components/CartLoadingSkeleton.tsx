@@ -7,7 +7,7 @@ const CartLoadingSkeleton = () => {
     <View className="justify-between flex-1">
       <View className="px-5 pt-5 pb-6">
         <View className="gap-4">
-          {Array.from({ length: 2 }).map((_, groupIndex) => (
+          {Array.from({ length: 1 }).map((_, groupIndex) => (
             <View
               key={groupIndex}
               className="p-4 bg-white border rounded-md border-white-600"
@@ -23,7 +23,7 @@ const CartLoadingSkeleton = () => {
               </View>
 
               <View className="gap-4">
-                {Array.from({ length: 2 }).map((_, itemIndex) => (
+                {Array.from({ length: 1 }).map((_, itemIndex) => (
                   <View key={itemIndex} className="flex-row">
                     <Skeleton width={20} height={20} borderRadius={4} />
 

@@ -64,7 +64,47 @@ export default function Skeleton({
   }));
 
   return (
-    <Animated.View
+    // <Animated.View
+    //   onLayout={handleLayout}
+    //   style={[
+    //     {
+    //       backgroundColor: "#e8e8e8",
+    //       overflow: "hidden",
+    //     },
+    //     {
+    //       width,
+    //       height,
+    //       borderRadius,
+    //     },
+    //     containerAnimatedStyle,
+    //   ]}
+    // >
+    //   <Animated.View
+    //     style={[
+    //       {
+    //         width: shimmerWidth,
+    //         height: "100%",
+    //       },
+    //       shimmerAnimatedStyle,
+    //     ]}
+    //   >
+    //     <LinearGradient
+    //       colors={[
+    //         "rgba(255,255,255,0)",
+    //         "rgba(255,255,255,0.45)",
+    //         "rgba(255,255,255,0)",
+    //       ]}
+    //       start={{ x: 0, y: 0 }}
+    //       end={{ x: 1, y: 0 }}
+    //       style={{
+    //         width: "100%",
+    //         height: "100%",
+    //       }}
+    //     />
+    //   </Animated.View>
+    // </Animated.View>
+
+    <View
       onLayout={handleLayout}
       style={[
         {
@@ -76,32 +116,7 @@ export default function Skeleton({
           height,
           borderRadius,
         },
-        containerAnimatedStyle,
       ]}
-    >
-      <Animated.View
-        style={[
-          {
-            width: shimmerWidth,
-            height: "100%",
-          },
-          shimmerAnimatedStyle,
-        ]}
-      >
-        <LinearGradient
-          colors={[
-            "rgba(255,255,255,0)",
-            "rgba(255,255,255,0.45)",
-            "rgba(255,255,255,0)",
-          ]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={{
-            width: "100%",
-            height: "100%",
-          }}
-        />
-      </Animated.View>
-    </Animated.View>
+    ></View>
   );
 }

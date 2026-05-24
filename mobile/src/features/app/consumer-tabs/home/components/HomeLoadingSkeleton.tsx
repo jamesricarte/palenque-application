@@ -4,15 +4,15 @@ import Skeleton from "@/src/components/ui/skeleton/Skeleton";
 
 const HomeLoadingSkeleton = () => {
   return (
-    <View className="pt-3">
+    <View>
       {/* Categories */}
       <View className="pl-6 mt-5">
         <View>
           <View className="flex-row gap-6">
             {Array.from({ length: 5 }).map((_, index) => (
               <View key={index} className="items-center">
-                <View className="items-center justify-center w-16 h-16 border rounded-full border-primary-500">
-                  <Skeleton width={54} height={54} borderRadius={999} />
+                <View className="items-center justify-center w-16 h-16 rounded-full ">
+                  <Skeleton width={56} height={56} borderRadius={999} />
                 </View>
 
                 <View className="mt-2">
