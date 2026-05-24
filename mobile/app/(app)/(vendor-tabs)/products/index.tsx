@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { useProducts } from "@/src/features/app/vendor-tabs/products/useProducts";
 import { router } from "expo-router";
+import ProductsLoadingSkeleton from "@/src/features/app/vendor-tabs/products/components/ProductsLoadingSkeleton";
 
 const MyProductsScreen = () => {
   const {
@@ -13,6 +14,7 @@ const MyProductsScreen = () => {
     selectedCategory,
     setSelectedCategory,
     filteredProducts,
+    loading,
     toggleAvailability,
   } = useProducts();
 
@@ -86,33 +88,49 @@ const MyProductsScreen = () => {
 
       <View className="flex-1">
         {/* Filters */}
-        <View className="flex-row gap-2 px-5 py-4 border-b border-white-600">
-          {categories.map((category) => {
-            const isActive = selectedCategory === category.id;
+        <View className="px-5 py-4 border-b border-white-600">
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View className="flex-row gap-2">
+              {categories.map((category) => {
+                const isActive = selectedCategory === category.id;
 
-            return (
-              <Pressable
-                key={category.id}
-                onPress={() => setSelectedCategory(category.id)}
-                className={`px-5 py-2 rounded-md border ${
-                  isActive
-                    ? "bg-primary-500 border-primary-500"
-                    : "bg-white border-brandBlack-50"
-                }`}
-              >
-                <Text
-                  className={`text-sm ${
-                    isActive ? "text-white" : "text-black-500"
-                  }`}
-                >
-                  {category.label}
-                </Text>
-              </Pressable>
-            );
-          })}
+                return (
+                  <Pressable
+                    key={category.id}
+                    onPress={() => setSelectedCategory(category.id)}
+                    className={`px-5 py-2 rounded-md border ${
+                      isActive
+                        ? "bg-primary-500 border-primary-500"
+                        : "bg-white border-brandBlack-50"
+                    }`}
+                  >
+                    <Text
+                      className={`text-sm ${
+                        isActive ? "text-white" : "text-black-500"
+                      }`}
+                    >
+                      {category.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </ScrollView>
         </View>
 
-        {filteredProducts.length === 0 ? (
+        {loading ? (
+          <ScrollView
+            className="flex-1"
+            contentContainerStyle={{
+              paddingHorizontal: 20,
+              paddingTop: 16,
+              paddingBottom: 120,
+            }}
+            showsVerticalScrollIndicator={false}
+          >
+            <ProductsLoadingSkeleton />
+          </ScrollView>
+        ) : filteredProducts.length === 0 ? (
           <View className="items-center justify-center flex-1 px-10">
             <Text className="text-xl text-center text-white-700">
               No products has been added.

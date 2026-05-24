@@ -19,49 +19,49 @@ export default function Skeleton({
   height,
   borderRadius = 8,
 }: SkeletonProps) {
-  const translateX = useSharedValue(-150);
+  // const translateX = useSharedValue(-150);
 
-  const opacity = useSharedValue(1);
+  // const opacity = useSharedValue(1);
 
-  const [containerWidth, setContainerWidth] = useState(0);
+  // const [containerWidth, setContainerWidth] = useState(0);
 
-  const shimmerWidth = 120;
+  // const shimmerWidth = 120;
 
-  useEffect(() => {
-    // Pulse animation
-    opacity.value = withRepeat(
-      withTiming(0.6, {
-        duration: 600,
-      }),
-      -1,
-      true,
-    );
-  }, []);
+  // useEffect(() => {
+  //   // Pulse animation
+  //   opacity.value = withRepeat(
+  //     withTiming(0.6, {
+  //       duration: 600,
+  //     }),
+  //     -1,
+  //     true,
+  //   );
+  // }, []);
 
-  useEffect(() => {
-    if (containerWidth === 0) return;
+  // useEffect(() => {
+  //   if (containerWidth === 0) return;
 
-    // Shimmer animation
-    translateX.value = withRepeat(
-      withTiming(containerWidth, {
-        duration: 1200,
-      }),
-      -1,
-      false,
-    );
-  }, [containerWidth]);
+  //   // Shimmer animation
+  //   translateX.value = withRepeat(
+  //     withTiming(containerWidth, {
+  //       duration: 1200,
+  //     }),
+  //     -1,
+  //     false,
+  //   );
+  // }, [containerWidth]);
 
-  const handleLayout = (event: LayoutChangeEvent) => {
-    setContainerWidth(event.nativeEvent.layout.width);
-  };
+  // const handleLayout = (event: LayoutChangeEvent) => {
+  //   setContainerWidth(event.nativeEvent.layout.width);
+  // };
 
-  const containerAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
+  // const containerAnimatedStyle = useAnimatedStyle(() => ({
+  //   opacity: opacity.value,
+  // }));
 
-  const shimmerAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
-  }));
+  // const shimmerAnimatedStyle = useAnimatedStyle(() => ({
+  //   transform: [{ translateX: translateX.value }],
+  // }));
 
   return (
     // <Animated.View
@@ -105,7 +105,6 @@ export default function Skeleton({
     // </Animated.View>
 
     <View
-      onLayout={handleLayout}
       style={[
         {
           backgroundColor: "#e8e8e8",

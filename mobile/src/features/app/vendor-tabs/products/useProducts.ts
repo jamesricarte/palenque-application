@@ -1,7 +1,6 @@
 import { supabase } from "@/src/config/supabaseClient";
 import { useAuth } from "@/src/hooks/useAuth";
-import { useFocusEffect } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Category = {
     id: string;
@@ -22,56 +21,63 @@ export const useProducts = () => {
     const { vendorData } = useAuth();
 
     const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    useFocusEffect(
-        useCallback(() => {
-            const fetchProducts = async () => {
-                const vendorId = vendorData?.id;
+    useEffect(() => {
+        const fetchProducts = async () => {
+            const vendorId = vendorData?.id;
 
-                try {
-                    if (!vendorId) throw new Error("User id is required");
+            try {
+                setLoading(true);
 
-                    const { data, error } = await supabase.from("products")
-                        .select().eq("vendor_id", vendorId);
+                if (!vendorId) throw new Error("User id is required");
 
-                    if (error) throw new Error(error.message);
+                const { data, error } = await supabase.from("products")
+                    .select().eq("vendor_id", vendorId);
 
-                    if (data) {
-                        setProducts(
-                            data.map((product) => {
-                                const { data: imageData } = supabase.storage
-                                    .from("products")
-                                    .getPublicUrl(product.image_path);
+                if (error) throw new Error(error.message);
 
-                                const categoryKey = product.category
-                                    .toLowerCase();
+                if (data) {
+                    setProducts(
+                        data.map((product) => {
+                            const { data: imageData } = supabase.storage
+                                .from("products")
+                                .getPublicUrl(product.image_path);
 
-                                return {
-                                    id: String(product.id),
-                                    name: product.name,
-                                    category: product.category,
-                                    categoryKey: categoryKey,
-                                    price: `₱ ${product.price}/${product.unit}`,
-                                    image: imageData.publicUrl,
-                                    available: true,
-                                };
-                            }),
-                        );
-                    }
-                } catch (error) {
-                    console.error(error);
+                            const categoryKey = product.category
+                                .toLowerCase();
+
+                            return {
+                                id: String(product.id),
+                                name: product.name,
+                                category: product.category,
+                                categoryKey: categoryKey,
+                                price: `₱ ${product.price}/${product.unit}`,
+                                image: imageData.publicUrl,
+                                available: true,
+                            };
+                        }),
+                    );
                 }
-            };
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-            fetchProducts();
-        }, []),
-    );
+        fetchProducts();
+    }, []);
 
     const categories = useMemo<Category[]>(
         () => [
             { id: "all", label: "All" },
             { id: "meat", label: "Meat" },
             { id: "seafood", label: "Seafood" },
+            { id: "poultry", label: "Poultry" },
+            { id: "fruits", label: "Fruits" },
+            { id: "vegetable", label: "Vegetables" },
+            { id: "others", label: "Others" },
         ],
         [],
     );
@@ -102,6 +108,7 @@ export const useProducts = () => {
         setSelectedCategory,
         products,
         filteredProducts,
+        loading,
         toggleAvailability,
     };
 };

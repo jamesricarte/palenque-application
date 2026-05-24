@@ -5,13 +5,13 @@ import {
   Pressable,
   Image,
   ScrollView,
-  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { useVendorOrders } from "@/src/features/app/orders/useVendorOrders";
 import CashIcon from "@/src/assets/cashIcon.png";
+import VendorOrdersLoadingSkeleton from "@/src/features/app/orders/components/VendorOrdersLoadingSkeleton";
 
 const statusLabelMap = {
   pending: "New",
@@ -99,9 +99,7 @@ const VendorOrdersScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         {loading ? (
-          <View className="items-center justify-center py-12">
-            <ActivityIndicator size="large" color="#f16b44" />
-          </View>
+          <VendorOrdersLoadingSkeleton />
         ) : orders.length === 0 ? (
           <View className="items-center justify-center py-12">
             <Text className="text-base text-white-700">No orders found.</Text>

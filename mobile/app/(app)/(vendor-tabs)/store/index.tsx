@@ -1,11 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import StoreLoadingSkeleton from "@/src/features/app/vendor-tabs/store/components/StoreLoadingSkeleton";
 
 const MyStoreScreen = () => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
+  }, []);
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar style="dark" />
@@ -29,9 +40,15 @@ const MyStoreScreen = () => {
       </View>
 
       {/* Body */}
-      <View className="items-center justify-center flex-1">
-        <Text>MyStoreScreen</Text>
-      </View>
+      {loading ? (
+        <View className="flex-1 pt-4">
+          <StoreLoadingSkeleton />
+        </View>
+      ) : (
+        <View className="items-center justify-center flex-1">
+          <Text>MyStoreScreen</Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 };

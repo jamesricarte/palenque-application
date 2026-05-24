@@ -1,15 +1,17 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useAuth } from "@/src/hooks/useAuth";
+import HomeLoadingSkeleton from "@/src/features/app/vendor-tabs/home/components/HomeLoadingSkeleton";
 
 const salesPeriods = ["Today", "This Week", "This Month"] as const;
 
 const HomeScreen = () => {
   const { user } = useAuth();
+  const [loading, setLoading] = useState<boolean>(true);
   const [selectedPeriod, setSelectedPeriod] =
     useState<(typeof salesPeriods)[number]>("Today");
 
@@ -25,6 +27,12 @@ const HomeScreen = () => {
       return salesPeriods[nextIndex];
     });
   };
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -54,80 +62,96 @@ const HomeScreen = () => {
             </Pressable>
           </View>
 
-          {/* Welcome Card */}
-          <View className="flex-row items-center justify-between px-4 py-4 mt-6 bg-white border rounded-md border-white-600">
-            <View className="flex-1 pr-4">
-              <Text className="text-xl font-semibold text-black-500">
-                Welcome Back, {firstName}!
-              </Text>
-              <Text className="mt-1 text-base text-white-700">
-                Here&apos;s what&apos;s happening in your store today
-              </Text>
-            </View>
-
-            <View className="items-center justify-center w-12 h-12 rounded-full bg-[#fef0ec]">
-              <Ionicons name="storefront-outline" size={22} color="#f16b44" />
-            </View>
-          </View>
-
-          {/* Active Orders */}
-          <View className="mt-6">
-            <Text className="text-xl font-semibold text-black-500">
-              Active Orders
-            </Text>
-
-            <View className="items-center justify-center h-[104px] px-6 mt-3 bg-white border rounded-md border-white-600">
-              <Text className="text-base text-center text-white-700">
-                No current active orders.
-              </Text>
-            </View>
-          </View>
-
-          {/* Sales Activity */}
-          <View className="mt-6">
-            <Text className="text-xl font-semibold text-black-500">
-              Sales Activity
-            </Text>
-
-            <Pressable
-              onPress={handleSelectSalesPeriod}
-              className="flex-row items-center justify-between px-4 py-4 mt-3 bg-white border rounded-md border-white-600"
-            >
-              <View className="flex-row items-center gap-3">
-                <Ionicons name="calendar-outline" size={22} color="#1f2933" />
-                <Text className="text-lg text-black-500">{selectedPeriod}</Text>
-              </View>
-
-              <Ionicons name="chevron-down" size={22} color="#1f2933" />
-            </Pressable>
-
-            <View className="px-4 py-4 mt-3 bg-white border rounded-md border-white-600">
-              <View className="flex-row items-center justify-between">
-                <Text className="text-lg text-black-500">Total Sales</Text>
-                <Text className="text-lg text-primary-500">P 0.00</Text>
-              </View>
-
-              <View className="flex-row justify-around mt-7">
-                <View className="items-center">
+          {loading ? (
+            <HomeLoadingSkeleton />
+          ) : (
+            <>
+              {/* Welcome Card */}
+              <View className="flex-row items-center justify-between px-4 py-4 mt-6 bg-white border rounded-md border-white-600">
+                <View className="flex-1 pr-4">
                   <Text className="text-xl font-semibold text-black-500">
-                    0
+                    Welcome Back, {firstName}!
                   </Text>
                   <Text className="mt-1 text-base text-white-700">
-                    Total Orders
+                    Here&apos;s what&apos;s happening in your store today
                   </Text>
                 </View>
 
-                <View className="items-center">
-                  <Text className="text-xl font-semibold text-black-500">
-                    0
-                  </Text>
-                  <Text className="mt-1 text-base text-white-700">
-                    Products Sold
+                <View className="items-center justify-center w-12 h-12 rounded-full bg-[#fef0ec]">
+                  <Ionicons
+                    name="storefront-outline"
+                    size={22}
+                    color="#f16b44"
+                  />
+                </View>
+              </View>
+
+              {/* Active Orders */}
+              <View className="mt-6">
+                <Text className="text-xl font-semibold text-black-500">
+                  Active Orders
+                </Text>
+
+                <View className="items-center justify-center h-[104px] px-6 mt-3 bg-white border rounded-md border-white-600">
+                  <Text className="text-base text-center text-white-700">
+                    No current active orders.
                   </Text>
                 </View>
               </View>
-            </View>
-          </View>
+
+              {/* Sales Activity */}
+              <View className="mt-6">
+                <Text className="text-xl font-semibold text-black-500">
+                  Sales Activity
+                </Text>
+
+                <Pressable
+                  onPress={handleSelectSalesPeriod}
+                  className="flex-row items-center justify-between px-4 py-4 mt-3 bg-white border rounded-md border-white-600"
+                >
+                  <View className="flex-row items-center gap-3">
+                    <Ionicons
+                      name="calendar-outline"
+                      size={22}
+                      color="#1f2933"
+                    />
+                    <Text className="text-lg text-black-500">
+                      {selectedPeriod}
+                    </Text>
+                  </View>
+
+                  <Ionicons name="chevron-down" size={22} color="#1f2933" />
+                </Pressable>
+
+                <View className="px-4 py-4 mt-3 bg-white border rounded-md border-white-600">
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-lg text-black-500">Total Sales</Text>
+                    <Text className="text-lg text-primary-500">P 0.00</Text>
+                  </View>
+
+                  <View className="flex-row justify-around mt-7">
+                    <View className="items-center">
+                      <Text className="text-xl font-semibold text-black-500">
+                        0
+                      </Text>
+                      <Text className="mt-1 text-base text-white-700">
+                        Total Orders
+                      </Text>
+                    </View>
+
+                    <View className="items-center">
+                      <Text className="text-xl font-semibold text-black-500">
+                        0
+                      </Text>
+                      <Text className="mt-1 text-base text-white-700">
+                        Products Sold
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
