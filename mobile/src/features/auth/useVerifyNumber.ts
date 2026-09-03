@@ -88,7 +88,7 @@ export function useVerifyNumber() {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization:
-                            `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
+                            `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY}`,
                     },
                 },
             );
@@ -129,7 +129,7 @@ export function useVerifyNumber() {
                     headers: {
                         "Content-Type": "application/json",
                         Authorization:
-                            `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
+                            `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY}`,
                     },
                 },
             );
