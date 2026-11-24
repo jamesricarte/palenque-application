@@ -79,7 +79,7 @@ const VendorTabsLayout = () => {
             <Ionicons
               name={focused ? "home" : "home-outline"}
               size={30}
-              color={color}
+              color={typeof color === "number" ? undefined : color ?? undefined}
             />
           ),
         }}
@@ -92,7 +92,7 @@ const VendorTabsLayout = () => {
             <Ionicons
               name={focused ? "basket" : "basket-outline"}
               size={30}
-              color={color}
+              color={typeof color === "number" ? undefined : color ?? undefined}
             />
           ),
         }}
@@ -105,7 +105,7 @@ const VendorTabsLayout = () => {
             <Ionicons
               name={focused ? "storefront" : "storefront-outline"}
               size={30}
-              color={color}
+              color={typeof color === "number" ? undefined : color ?? undefined}
             />
           ),
         }}

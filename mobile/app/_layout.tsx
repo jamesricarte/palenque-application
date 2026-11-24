@@ -15,9 +15,7 @@ const RootLayout = () => {
     <GestureHandlerRootView>
       <AuthProvider>
         <StatusBar />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen />
-        </Stack>
+        <Stack screenOptions={{ headerShown: false }} />
       </AuthProvider>
     </GestureHandlerRootView>
   );

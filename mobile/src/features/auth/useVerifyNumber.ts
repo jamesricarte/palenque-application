@@ -1,9 +1,8 @@
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-    NativeSyntheticEvent,
-    TextInput,
-    TextInputKeyPressEventData,
+    TextInputInstance,
+    TextInputKeyPressEvent,
 } from "react-native";
 import axios from "axios";
 
@@ -22,7 +21,7 @@ export function useVerifyNumber() {
     const [error, setError] = useState("");
     const [resendTimeout, setResendTimeout] = useState<number>(60);
 
-    const inputRefs = useRef<Array<TextInput | null>>([]);
+    const inputRefs = useRef<Array<TextInputInstance | null>>([]);
 
     const otp = useMemo(() => digits.join(""), [digits]);
     const isComplete = otp.length === 6 && !digits.includes("");
@@ -49,7 +48,7 @@ export function useVerifyNumber() {
 
     const handleKeyPress = (
         index: number,
-        e: NativeSyntheticEvent<TextInputKeyPressEventData>,
+        e: TextInputKeyPressEvent,
     ) => {
         if (e.nativeEvent.key === "Backspace") {
             // If current is empty, jump back and clear previous

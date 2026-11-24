@@ -38,7 +38,7 @@ const ConsumerTabsLayout = () => {
             <Ionicons
               name={focused ? "home" : "home-outline"}
               size={30}
-              color={color}
+              color={typeof color === "number" ? undefined : color ?? undefined}
             />
           ),
         }}
@@ -52,7 +52,7 @@ const ConsumerTabsLayout = () => {
             <Ionicons
               name={focused ? "cube" : "cube-outline"}
               size={30}
-              color={color}
+              color={typeof color === "number" ? undefined : color ?? undefined}
             />
           ),
         }}
@@ -66,7 +66,7 @@ const ConsumerTabsLayout = () => {
             <Ionicons
               name={focused ? "notifications" : "notifications-outline"}
               size={30}
-              color={color}
+              color={typeof color === "number" ? undefined : color ?? undefined}
             />
           ),
         }}
@@ -80,7 +80,7 @@ const ConsumerTabsLayout = () => {
             <Ionicons
               name={focused ? "person" : "person-outline"}
               size={30}
-              color={color}
+              color={typeof color === "number" ? undefined : color ?? undefined}
             />
           ),
         }}

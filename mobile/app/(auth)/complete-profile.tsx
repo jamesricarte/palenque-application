@@ -7,12 +7,13 @@ import {
   ActivityIndicator,
   Modal,
   ScrollView,
+  Platform,
 } from "react-native";
-import MapView, { Marker } from "react-native-maps";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useCompleteProfile } from "@/src/features/auth/useCompleteProfile";
 import { SafeAreaView } from "react-native-safe-area-context";
+import LocationMap from "@/src/features/auth/components/LocationMap";
 
 const CompleteProfileScreen = () => {
   const router = useRouter();
@@ -179,7 +180,9 @@ const CompleteProfileScreen = () => {
                   Set Delivery Address
                 </Text>
                 <Text className="mt-1 text-[15px] text-white-700">
-                  Tap on the map to pin your exact location.
+                  {Platform.OS === "web"
+                    ? "Enter coordinates or use your current location."
+                    : "Tap on the map to pin your exact location."}
                 </Text>
               </View>
 
@@ -199,17 +202,11 @@ const CompleteProfileScreen = () => {
                 </View>
               ) : (
                 <>
-                  <MapView
-                    style={{ flex: 1 }}
+                  <LocationMap
                     region={mapRegion}
                     onPress={handleMapPress}
-                    showsUserLocation={true}
-                    showsMyLocationButton={true}
-                  >
-                    {selectedCoordinate ? (
-                      <Marker coordinate={selectedCoordinate} />
-                    ) : null}
-                  </MapView>
+                    selectedCoordinate={selectedCoordinate}
+                  />
 
                   <Pressable
                     onPress={handleUseCurrentLocation}
