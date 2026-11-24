@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "storage:restore": "node ./server/scripts/restore-local-storage.mjs"
+  },
   "devDependencies": {
     "supabase": "^2.76.10"
   }
